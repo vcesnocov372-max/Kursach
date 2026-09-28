@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель — KidsBe</title>
+<script>
+(function(){
+  try{
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('kidsbe_theme') || 'light');
+    document.documentElement.setAttribute('data-palette', localStorage.getItem('kidsbe_palette') || 'purple');
+  }catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+  <div id="kbPreloader">
+    <div class="kb-spinner"></div>
+    <div class="kb-preloader-text" data-i18n="preloader_text">Загружаем KidsBe…</div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-wrapper"><img class="logo-img" src="img/logo.png" alt="KidsBe"></div>
+      <div class="tagline">админ-панель</div>
+    </div>
+    <div id="settingsWidget"></div>
+    <a class="login-btn" href="index.html">На сайт</a>
+  </header>
+
+  <!-- ВХОД В АДМИНКУ -->
+  <div class="admin-gate" id="gate">
+    <div class="auth-title">Вход в админ-панель</div>
+    <div class="auth-sub">Демо-доступ: пароль <b>admin123</b></div>
+    <div class="form-field" id="gatePassField">
+      <label for="gatePass">Пароль администратора</label>
+      <input type="password" id="gatePass" placeholder="Введите пароль">
+      <div class="form-error">Неверный пароль</div>
+    </div>
+    <button type="button" class="btn btn-primary" style="width:100%;" id="gateBtn">Войти</button>
+  </div>
+
+  <!-- ПАНЕЛЬ -->
+  <div class="admin-shell" id="shell" style="display:none;">
+    <aside class="admin-side">
+      <div class="a-item active" data-view="courses">Курсы</div>
+      <div class="a-item" data-view="teachers">Педагоги</div>
+      <div class="a-item" data-view="calendar">Календарь</div>
+      <div class="a-item" data-view="users">Пользователи</div>
+      <div class="a-item" id="logoutBtn" style="color:var(--danger);">↩ Выйти</div>
+    </aside>
+
+    <div class="admin-content">
+      <!-- КУРСЫ -->
+      <div class="admin-view active" id="view-courses">
+        <div class="admin-toolbar">
+          <h2>Курсы</h2>
+          <button type="button" class="btn btn-primary btn-sm" id="addCourseBtn">+ Добавить курс</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Курс</th><th>Возраст</th><th>Базовая цена</th><th>Модулей</th><th></th></tr></thead>
+          <tbody id="coursesTbody"></tbody>
+        </table>
+      </div>
+
+      <!-- ПЕДАГОГИ -->
+      <div class="admin-view" id="view-teachers">
+        <div class="admin-toolbar">
+          <h2>Педагоги</h2>
+          <button type="button" class="btn btn-primary btn-sm" id="addTeacherBtn">+ Добавить педагога</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Имя</th><th>Роль</th><th>Опыт</th><th>Учеников</th><th></th></tr></thead>
+          <tbody id="teachersTbody"></tbody>
+        </table>
+      </div>
+
+      <!-- КАЛЕНДАРЬ -->
+      <div class="admin-view" id="view-calendar">
+        <div class="admin-toolbar">
+          <h2>Открытие и закрытие дат</h2>
+        </div>
+        <div class="form-field" style="max-width:520px;">
+          <label>Адрес центра (для карты на сайте)</label>
+          <input type="text" id="addressInput">
+        </div>
+        <div class="cal-nav" style="max-width:520px;">
+          <button type="button" id="admPrev">←</button>
+          <h3 id="admMonthLabel"></h3>
+          <button type="button" id="admNext">→</button>
+        </div>
+        <div class="admin-mini-cal" id="admCal"></div>
+        <div class="admin-hint">Клик по дню переключает: свободно → занято → закрыто → свободно. Занятые администратором вручную дни не может забронировать клиент.</div>
+      </div>
+
+      <!-- ПОЛЬЗОВАТЕЛИ -->
+      <div class="admin-view" id="view-users">
+        <div class="admin-toolbar">
+          <h2>Пользователи</h2>
+          <button type="button" class="btn btn-primary btn-sm" id="addUserBtn">+ Добавить пользователя</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>ID</th><th>Имя</th><th>Логин</th><th>Телефон</th><th>Заказов</th><th></th></tr></thead>
+          <tbody id="usersTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ДЛЯ КУРСА -->
+  <div class="modal-backdrop" id="courseModal">
+    <div class="modal-box">
+      <h3 id="courseModalTitle">Курс</h3>
+      <div class="form-field"><label>Название</label><input type="text" id="cTitle"></div>
+      <div class="form-field"><label>Описание</label><textarea id="cDesc" rows="3"></textarea></div>
+      <div class="form-field" style="display:flex; gap:12px;">
+        <div style="flex:1;"><label>Возраст от</label><input type="number" id="cAgeFrom" min="1" max="18"></div>
+        <div style="flex:1;"><label>Возраст до</label><input type="number" id="cAgeTo" min="1" max="18"></div>
+      </div>
+      <div class="form-field"><label>Базовая цена за занятие (руб.)</label><input type="number" id="cPrice" min="0"></div>
+      <div class="form-field">
+        <label>Модули (название и цена через " - ", по одному в строке)</label>
+        <textarea id="cModules" rows="4" placeholder="Обучение грамоте - 6&#10;Пересказ - 5"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="courseCancel">Отмена</button>
+        <button type="button" class="btn btn-primary" id="courseSave">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ДЛЯ ПЕДАГОГА -->
+  <div class="modal-backdrop" id="teacherModal">
+    <div class="modal-box">
+      <h3 id="teacherModalTitle">Педагог</h3>
+      <div class="form-field"><label>Имя</label><input type="text" id="tName"></div>
+      <div class="form-field"><label>Роль / специализация</label><input type="text" id="tRole"></div>
+      <div class="form-field" style="display:flex; gap:12px;">
+        <div style="flex:1;"><label>Опыт (лет)</label><input type="number" id="tExp" min="0"></div>
+        <div style="flex:1;"><label>Учеников</label><input type="number" id="tStudents" min="0"></div>
+      </div>
+      <div class="form-field"><label>О педагоге</label><textarea id="tBio" rows="3"></textarea></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="teacherCancel">Отмена</button>
+        <button type="button" class="btn btn-primary" id="teacherSave">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ДЛЯ ПОЛЬЗОВАТЕЛЯ -->
+  <div class="modal-backdrop" id="userModal">
+    <div class="modal-box">
+      <h3 id="userModalTitle">Пользователь</h3>
+      <div class="form-field"><label>Имя</label><input type="text" id="uName"></div>
+      <div class="form-field"><label>Логин (email)</label><input type="email" id="uLogin"></div>
+      <div class="form-field"><label>Телефон</label><input type="tel" id="uPhone"></div>
+      <div class="form-field"><label>Пароль (оставьте пустым, чтобы не менять)</label><input type="password" id="uPassword" placeholder="Новый пароль"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="userCancel">Отмена</button>
+        <button type="button" class="btn btn-primary" id="userSave">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+<script src="data.js"></script>
+<script src="app-common.js"></script>
+<script>
+(function(){
+  KBUI.mountSettingsWidget('#settingsWidget');
+  let courses = [];
+  let teachers = [];
+  let calendarData = null;
+  let users = [];
+
+  const gate = document.getElementById('gate');
+  const shell = document.getElementById('shell');
+  const gatePass = document.getElementById('gatePass');
+  const gatePassField = document.getElementById('gatePassField');
+
+  async function tryEnter(){
+    let ok = false;
+    try { ok = await KB.checkAdminPass(gatePass.value); }
+    catch (err) { alert('Сервер данных недоступен. Запустите json-server (npm run server).'); return; }
+    if (ok) {
+      gate.style.display = 'none';
+      shell.style.display = 'grid';
+      renderAll();
+    } else {
+      gatePassField.classList.add('invalid');
+    }
+  }
+  document.getElementById('gateBtn').addEventListener('click', tryEnter);
+  gatePass.addEventListener('keydown', function(e){ if (e.key === 'Enter') tryEnter(); });
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    KB.adminLogout();
+    shell.style.display = 'none';
+    gate.style.display = 'block';
+    gatePass.value = '';
+  });
+  if (KB.isAdmin()) {
+    gate.style.display = 'none';
+    shell.style.display = 'grid';
+    renderAll().finally(KBUI.hidePreloader);
+  } else {
+    KBUI.hidePreloader();
+  }
+
+  // ===== Навигация по разделам =====
+  document.querySelectorAll('.a-item[data-view]').forEach(function(item){
+    item.addEventListener('click', function(){
+      document.querySelectorAll('.a-item[data-view]').forEach(function(i){ i.classList.remove('active'); });
+      item.classList.add('active');
+      document.querySelectorAll('.admin-view').forEach(function(v){ v.classList.remove('active'); });
+      document.getElementById('view-' + item.dataset.view).classList.add('active');
+    });
+  });
+
+  async function renderAll(){
+    try {
+      [courses, teachers, calendarData, users] = await Promise.all([
+        KB.loadCourses(), KB.loadTeachers(), KB.loadCalendar(), loadUsers()
+      ]);
+      renderCourses();
+      renderTeachers();
+      renderAdminCalendar();
+      renderUsers();
+      document.getElementById('addressInput').value = calendarData.location.address;
+    } catch (err) {
+      alert('Не удалось загрузить данные. Запустите json-server (npm run server).');
+    }
+  }
+
+  // ============ РАБОТА С ПОЛЬЗОВАТЕЛЯМИ ============
+  async function loadUsers() {
+    const res = await fetch('http://localhost:3000/users');
+    if (!res.ok) throw new Error('Ошибка загрузки пользователей');
+    return await res.json();
+  }
+
+  const usersTbody = document.getElementById('usersTbody');
+  const userModal = document.getElementById('userModal');
+  let editingUserId = null;
+
+  function renderUsers() {
+    usersTbody.innerHTML = '';
+    if (!users || users.length === 0) {
+      usersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);">Пользователей нет</td></tr>';
+      return;
+    }
+    users.forEach(function(u){
+      const tr = document.createElement('tr');
+      const ordersCount = (u.orders && Array.isArray(u.orders)) ? u.orders.length : 0;
+      tr.innerHTML =
+        '<td><code>' + u.id + '</code></td>' +
+        '<td>' + u.name + '</td>' +
+        '<td>' + u.login + '</td>' +
+        '<td>' + (u.phone || '—') + '</td>' +
+        '<td>' + ordersCount + '</td>' +
+        '<td class="actions">' +
+          '<button class="btn btn-ghost btn-sm" data-edit="' + u.id + '">Изменить</button>' +
+          '<button class="btn btn-danger btn-sm" data-del="' + u.id + '">Удалить</button>' +
+        '</td>';
+      usersTbody.appendChild(tr);
+    });
+    usersTbody.querySelectorAll('[data-edit]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openUserModal(btn.dataset.edit); });
+    });
+    usersTbody.querySelectorAll('[data-del]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if (!confirm('Удалить этого пользователя?')) return;
+        try {
+          await fetch('http://localhost:3000/users/' + btn.dataset.del, { method: 'DELETE' });
+          users = users.filter(function(u){ return u.id !== btn.dataset.del; });
+          renderUsers();
+        } catch (err) {
+          alert('Ошибка при удалении пользователя.');
+        }
+      });
+    });
+  }
+
+  function openUserModal(id) {
+    editingUserId = id;
+    const u = id ? users.find(function(x){ return x.id === id; }) : null;
+    document.getElementById('userModalTitle').textContent = u ? 'Изменить пользователя' : 'Новый пользователь';
+    document.getElementById('uName').value = u ? u.name : '';
+    document.getElementById('uLogin').value = u ? u.login : '';
+    document.getElementById('uPhone').value = u ? u.phone : '';
+    document.getElementById('uPassword').value = ''; // всегда пустое для безопасности
+    userModal.classList.add('show');
+  }
+
+  document.getElementById('addUserBtn').addEventListener('click', function(){ openUserModal(null); });
+  document.getElementById('userCancel').addEventListener('click', function(){ userModal.classList.remove('show'); });
+
+  document.getElementById('userSave').addEventListener('click', async function(){
+    const name = document.getElementById('uName').value.trim();
+    const login = document.getElementById('uLogin').value.trim();
+    const phone = document.getElementById('uPhone').value.trim();
+    const password = document.getElementById('uPassword').value.trim();
+
+    if (!name) { alert('Введите имя'); return; }
+    if (!login) { alert('Введите логин'); return; }
+
+    const payload = {
+      name: name,
+      login: login,
+      loginType: 'email',
+      phone: phone || ''
+    };
+
+    if (editingUserId) {
+      // Обновляем существующего
+      const existing = users.find(u => u.id === editingUserId);
+      if (!existing) return;
+      // Сохраняем старые поля, которые не меняем
+      payload.birthdate = existing.birthdate || '';
+      payload.nickname = existing.nickname || '';
+      payload.orders = existing.orders || [];
+      // Если пароль указан, обновляем
+      if (password) {
+        payload.passHash = 'h-' + password;
+      } else {
+        payload.passHash = existing.passHash;
+      }
+      // Отправляем PUT
+      const res = await fetch('http://localhost:3000/users/' + editingUserId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Ошибка сохранения');
+      const updated = await res.json();
+      const idx = users.findIndex(u => u.id === editingUserId);
+      users[idx] = updated;
+      renderUsers();
+    } else {
+      // Создаём нового
+      if (!password) { alert('Для нового пользователя необходимо задать пароль'); return; }
+      payload.passHash = 'h-' + password;
+      payload.birthdate = '';
+      payload.nickname = '';
+      payload.orders = [];
+      const res = await fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Ошибка создания');
+      const created = await res.json();
+      users.push(created);
+      renderUsers();
+    }
+    userModal.classList.remove('show');
+  });
+
+  /* ============ КУРСЫ (без изменений) ============ */
+  const coursesTbody = document.getElementById('coursesTbody');
+  const courseModal = document.getElementById('courseModal');
+  let editingCourseId = null;
+
+  function renderCourses(){
+    coursesTbody.innerHTML = '';
+    courses.forEach(function(c){
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><b>' + c.title + '</b><div style="color:var(--muted);font-size:12px;max-width:280px;">' + c.desc + '</div></td>' +
+        '<td>' + c.ageFrom + '–' + c.ageTo + ' лет</td>' +
+        '<td>' + c.basePrice + ' руб.</td>' +
+        '<td>' + c.modules.length + '</td>' +
+        '<td class="actions"><button class="btn btn-ghost btn-sm" data-edit="' + c.id + '">Изменить</button><button class="btn btn-danger btn-sm" data-del="' + c.id + '">Удалить</button></td>';
+      coursesTbody.appendChild(tr);
+    });
+    coursesTbody.querySelectorAll('[data-edit]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openCourseModal(btn.dataset.edit); });
+    });
+    coursesTbody.querySelectorAll('[data-del]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if (!confirm('Удалить этот курс?')) return;
+        await KB.deleteCourse(btn.dataset.del);
+        courses = courses.filter(function(c){ return c.id !== btn.dataset.del; });
+        renderCourses();
+      });
+    });
+  }
+
+  function openCourseModal(id){
+    editingCourseId = id;
+    const c = id ? courses.find(function(x){ return x.id === id; }) : null;
+    document.getElementById('courseModalTitle').textContent = c ? 'Изменить курс' : 'Новый курс';
+    document.getElementById('cTitle').value = c ? c.title : '';
+    document.getElementById('cDesc').value = c ? c.desc : '';
+    document.getElementById('cAgeFrom').value = c ? c.ageFrom : 3;
+    document.getElementById('cAgeTo').value = c ? c.ageTo : 7;
+    document.getElementById('cPrice').value = c ? c.basePrice : 15;
+    document.getElementById('cModules').value = c ? c.modules.map(function(m){ return m.name + ' - ' + m.price; }).join('\n') : '';
+    courseModal.classList.add('show');
+  }
+  document.getElementById('addCourseBtn').addEventListener('click', function(){ openCourseModal(null); });
+  document.getElementById('courseCancel').addEventListener('click', function(){ courseModal.classList.remove('show'); });
+
+  document.getElementById('courseSave').addEventListener('click', async function(){
+    const title = document.getElementById('cTitle').value.trim();
+    if (!title) { alert('Введите название курса'); return; }
+    const modules = document.getElementById('cModules').value.split('\n').map(function(line){
+      const parts = line.split(' - ');
+      if (parts.length < 2) return null;
+      const price = parseFloat(parts[1].replace(',', '.'));
+      if (!parts[0].trim() || isNaN(price)) return null;
+      return { id: KB.uid('m'), name: parts[0].trim(), price: price };
+    }).filter(Boolean);
+
+    const payload = {
+      title: title,
+      desc: document.getElementById('cDesc').value.trim(),
+      ageFrom: parseInt(document.getElementById('cAgeFrom').value, 10) || 3,
+      ageTo: parseInt(document.getElementById('cAgeTo').value, 10) || 7,
+      basePrice: parseFloat(document.getElementById('cPrice').value) || 0,
+      modules: modules
+    };
+
+    if (editingCourseId) {
+      const idx = courses.findIndex(function(c){ return c.id === editingCourseId; });
+      payload.id = editingCourseId;
+      payload.icon = courses[idx].icon;
+      const saved = await KB.saveCourse(payload);
+      courses[idx] = saved;
+    } else {
+      payload.icon = courses.length % KB.COURSE_ICONS.length;
+      const saved = await KB.saveCourse(payload);
+      courses.push(saved);
+    }
+    courseModal.classList.remove('show');
+    renderCourses();
+  });
+
+  /* ============ ПЕДАГОГИ (без изменений) ============ */
+  const teachersTbody = document.getElementById('teachersTbody');
+  const teacherModal = document.getElementById('teacherModal');
+  let editingTeacherId = null;
+
+  function renderTeachers(){
+    teachersTbody.innerHTML = '';
+    teachers.forEach(function(t){
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><b>' + t.name + '</b></td>' +
+        '<td>' + t.role + '</td>' +
+        '<td>' + t.exp + ' лет</td>' +
+        '<td>' + t.students + '</td>' +
+        '<td class="actions"><button class="btn btn-ghost btn-sm" data-edit="' + t.id + '">Изменить</button><button class="btn btn-danger btn-sm" data-del="' + t.id + '">Удалить</button></td>';
+      teachersTbody.appendChild(tr);
+    });
+    teachersTbody.querySelectorAll('[data-edit]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openTeacherModal(btn.dataset.edit); });
+    });
+    teachersTbody.querySelectorAll('[data-del]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if (!confirm('Удалить этого педагога?')) return;
+        await KB.deleteTeacher(btn.dataset.del);
+        teachers = teachers.filter(function(t){ return t.id !== btn.dataset.del; });
+        renderTeachers();
+      });
+    });
+  }
+
+  function openTeacherModal(id){
+    editingTeacherId = id;
+    const t = id ? teachers.find(function(x){ return x.id === id; }) : null;
+    document.getElementById('teacherModalTitle').textContent = t ? 'Изменить педагога' : 'Новый педагог';
+    document.getElementById('tName').value = t ? t.name : '';
+    document.getElementById('tRole').value = t ? t.role : '';
+    document.getElementById('tExp').value = t ? t.exp : 1;
+    document.getElementById('tStudents').value = t ? t.students : 0;
+    document.getElementById('tBio').value = t ? t.bio : '';
+    teacherModal.classList.add('show');
+  }
+  document.getElementById('addTeacherBtn').addEventListener('click', function(){ openTeacherModal(null); });
+  document.getElementById('teacherCancel').addEventListener('click', function(){ teacherModal.classList.remove('show'); });
+
+  document.getElementById('teacherSave').addEventListener('click', async function(){
+    const name = document.getElementById('tName').value.trim();
+    if (!name) { alert('Введите имя педагога'); return; }
+    const payload = {
+      name: name,
+      role: document.getElementById('tRole').value.trim() || 'Педагог',
+      exp: parseInt(document.getElementById('tExp').value, 10) || 0,
+      students: parseInt(document.getElementById('tStudents').value, 10) || 0,
+      bio: document.getElementById('tBio').value.trim()
+    };
+    if (editingTeacherId) {
+      const idx = teachers.findIndex(function(t){ return t.id === editingTeacherId; });
+      payload.id = editingTeacherId;
+      const saved = await KB.saveTeacher(payload);
+      teachers[idx] = saved;
+    } else {
+      const saved = await KB.saveTeacher(payload);
+      teachers.push(saved);
+    }
+    teacherModal.classList.remove('show');
+    renderTeachers();
+  });
+
+  /* ============ КАЛЕНДАРЬ (без изменений) ============ */
+  const MONTHS = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+  let admView = new Date();
+  admView.setDate(1);
+  const admCal = document.getElementById('admCal');
+  const admMonthLabel = document.getElementById('admMonthLabel');
+
+  const NEXT_STATUS = { free: 'busy', busy: 'closed', closed: 'free' };
+  const STATUS_LABEL = { free: 'Свободно', busy: 'Занято', closed: 'Закрыто' };
+
+  function renderAdminCalendar(){
+    admMonthLabel.textContent = MONTHS[admView.getMonth()] + ' ' + admView.getFullYear();
+    admCal.innerHTML = '';
+    const firstDow = (admView.getDay() + 6) % 7;
+    for (let i = 0; i < firstDow; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'mc-day empty';
+      admCal.appendChild(empty);
+    }
+    const daysInMonth = new Date(admView.getFullYear(), admView.getMonth() + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(admView.getFullYear(), admView.getMonth(), day);
+      const key = KB.toKey(dateObj);
+      const status = calendarData.days[key] || 'closed';
+      const cell = document.createElement('div');
+      cell.className = 'mc-day ' + (status === 'free' ? 'open' : status);
+      cell.textContent = day;
+      cell.title = STATUS_LABEL[status];
+      cell.addEventListener('click', async function(){
+        calendarData.days[key] = NEXT_STATUS[status];
+        renderAdminCalendar();
+        try { await KB.saveCalendar(calendarData); }
+        catch (err) { alert('Не удалось сохранить изменение. Проверьте json-server.'); }
+      });
+      admCal.appendChild(cell);
+    }
+  }
+  document.getElementById('admPrev').addEventListener('click', function(){ admView.setMonth(admView.getMonth()-1); renderAdminCalendar(); });
+  document.getElementById('admNext').addEventListener('click', function(){ admView.setMonth(admView.getMonth()+1); renderAdminCalendar(); });
+
+  let addressSaveTimer = null;
+  document.getElementById('addressInput').addEventListener('change', function(e){
+    calendarData.location.address = e.target.value;
+    clearTimeout(addressSaveTimer);
+    addressSaveTimer = setTimeout(async function(){
+      try { await KB.saveCalendar(calendarData); }
+      catch (err) { alert('Не удалось сохранить адрес. Проверьте json-server.'); }
+    }, 300);
+  });
+
+  if (KB.isAdmin()) renderAll();
+})();
+</script>
+</body>
+</html>
