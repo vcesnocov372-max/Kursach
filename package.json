@@ -1,0 +1,14 @@
+{
+  "name": "school",
+  "version": "1.0.0",
+  "description": "Курсовая работа - Школа для детей",
+  "scripts": {
+    "server": "json-server --watch db.json --port 3000 --cors --delay 500"
+  },
+  "dependencies": {
+    "json-server": "^0.17.4"
+  },
+  "devDependencies": {
+    "cors": "^2.8.6"
+  }
+}
