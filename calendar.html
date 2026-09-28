@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Календарь занятости — KidsBe</title>
+<script>
+(function(){
+  try{
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('kidsbe_theme') || 'light');
+    document.documentElement.setAttribute('data-palette', localStorage.getItem('kidsbe_palette') || 'purple');
+  }catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+  <div id="kbPreloader">
+    <div class="kb-spinner"></div>
+    <div class="kb-preloader-text" data-i18n="preloader_text">Загружаем KidsBe…</div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-wrapper"><img class="logo-img" src="img/logo.png" alt="KidsBe"></div>
+      <div class="tagline">продуктивный подход<br>к обучению детей</div>
+    </div>
+    <nav id="mainNav">
+      <a href="index.html" data-i18n="nav_home">Главная</a>
+      <a href="courses.html" data-i18n="nav_courses">Курсы</a>
+      <a href="calendar.html" data-i18n="nav_calendar">Календарь</a>
+      <a href="teachers.html" data-i18n="nav_teachers">Педагоги</a>
+      <a href="my-courses.html" id="myCoursesLink" style="display:none;" data-i18n="nav_my_courses">Мои курсы</a>
+    </nav>
+    <div class="socials">
+      <a href="#" aria-label="Instagram"><img src="/img/icons/1.svg" alt="Instagram"></a>
+      <a href="#" aria-label="YouTube"><img src="/img/icons/2.svg" alt="YouTube"></a>
+      <a href="#" aria-label="Facebook"><img src="/img/icons/3.svg" alt="Facebook"></a>
+      <a href="#" aria-label="VK"><img src="/img/icons/4.svg" alt="VK"></a>
+      <a href="#" aria-label="WhatsApp"><img src="/img/icons/5.svg" alt="WhatsApp"></a>
+      <a href="#" aria-label="Telegram"><img src="/img/icons/6.svg" alt="Telegram"></a>
+      <a href="#" aria-label="Viber"><img src="/img/icons/7.svg" alt="Viber"></a>
+    </div>
+    <a class="login-btn" href="auth.html" id="authLink">Войти</a>
+    <div id="settingsWidget"></div>
+    <button class="burger" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main class="app-main">
+    <div class="app-header">
+      <div class="app-eyebrow" data-i18n="calendar_eyebrow">Запись на занятия</div>
+      <h1 data-i18n="calendar_title">Календарь занятости и расположение центра</h1>
+      <p data-i18n="calendar_sub">Зелёным отмечены свободные дни, красным — уже занятые, серым — дни, когда центр не работает. Точные даты открывает и закрывает администратор.</p>
+    </div>
+
+    <div class="cal-layout">
+      <div class="cal-card">
+        <div class="cal-nav">
+          <button type="button" id="prevMonth">←</button>
+          <h3 id="monthLabel"></h3>
+          <button type="button" id="nextMonth">→</button>
+        </div>
+        <div class="cal-weekdays">
+          <span data-i18n="mon">Пн</span>
+          <span data-i18n="tue">Вт</span>
+          <span data-i18n="wed">Ср</span>
+          <span data-i18n="thu">Чт</span>
+          <span data-i18n="fri">Пт</span>
+          <span data-i18n="sat">Сб</span>
+          <span data-i18n="sun">Вс</span>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <span><i class="i-free"></i> <span data-i18n="legend_free">Свободно</span></span>
+          <span><i class="i-busy"></i> <span data-i18n="legend_busy">Уже занято</span></span>
+          <span><i class="i-closed"></i> <span data-i18n="legend_closed">Центр закрыт</span></span>
+        </div>
+      </div>
+
+      <div>
+        <div class="map-wrap">
+          <iframe id="mapFrame" loading="lazy" title="Карта расположения KidsBe"></iframe>
+          <div class="location-card">
+            <h3 data-i18n="address_title">Наш адрес</h3>
+            <p id="addressText"></p>
+            <p data-i18n="address_hours">Работаем ежедневно, кроме воскресенья</p>
+          </div>
+        </div>
+
+        <div class="slot-list" id="slotList"></div>
+      </div>
+    </div>
+  </main>
+
+<script src="data.js"></script>
+<script src="app-common.js"></script>
+<script src="script.js"></script>
+<script>
+(function(){
+  // ===== ВИДЖЕТ НАСТРОЕК =====
+  KBUI.mountSettingsWidget('#settingsWidget');
+
+  // ===== КАЛЕНДАРЬ (с i18n) =====
+  const MONTHS = [
+    'month_jan', 'month_feb', 'month_mar', 'month_apr', 'month_may', 'month_jun',
+    'month_jul', 'month_aug', 'month_sep', 'month_oct', 'month_nov', 'month_dec'
+  ];
+  let view = new Date();
+  view.setDate(1);
+
+  const grid = document.getElementById('calGrid');
+  const monthLabel = document.getElementById('monthLabel');
+  const slotList = document.getElementById('slotList');
+
+  let calendarData = null;
+
+  function statusOf(dateObj){
+    const key = KB.toKey(dateObj);
+    return calendarData.days[key] || 'closed';
+  }
+
+  function renderCalendar(){
+    const t = function(key) {
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        return KBUI.t(key);
+      }
+      return key;
+    };
+    monthLabel.textContent = t(MONTHS[view.getMonth()]) + ' ' + view.getFullYear();
+    grid.innerHTML = '';
+    const firstDow = (view.getDay() + 6) % 7; // понедельник = 0
+    for (let i = 0; i < firstDow; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day empty';
+      grid.appendChild(empty);
+    }
+    const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+    const today = new Date();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(view.getFullYear(), view.getMonth(), day);
+      const status = statusOf(dateObj);
+      const cell = document.createElement('div');
+      cell.className = 'cal-day ' + status;
+      if (dateObj.toDateString() === today.toDateString()) cell.classList.add('today');
+      cell.textContent = day;
+      const titleText = status === 'free' ? t('status_free') : status === 'busy' ? t('status_busy') : t('status_closed');
+      cell.title = titleText;
+      cell.addEventListener('click', function(){ renderSlots(dateObj, status); });
+      grid.appendChild(cell);
+    }
+  }
+
+  function renderSlots(dateObj, status){
+    const t = function(key) {
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        return KBUI.t(key);
+      }
+      return key;
+    };
+    const label = dateObj.toLocaleDateString('ru-RU', { day:'numeric', month:'long', weekday:'long' });
+    if (status === 'closed') {
+      slotList.innerHTML = '<h3>' + label + '</h3><div class="empty-state">' + t('day_closed') + '</div>';
+      return;
+    }
+    const times = ['10:00', '12:00', '14:00', '16:00', '18:00'];
+    let html = '<h3>' + label + '</h3>';
+    times.forEach(function(tm, i){
+      const busy = status === 'busy' && i % 2 === 0;
+      const statusText = busy ? t('slot_busy') : t('slot_free');
+      const statusClass = busy ? 'busy' : 'free';
+      html += '<div class="slot-row"><span>' + tm + '</span><span class="status ' + statusClass + '">' + statusText + '</span></div>';
+    });
+    slotList.innerHTML = html;
+  }
+
+  document.getElementById('prevMonth').addEventListener('click', function(){
+    view.setMonth(view.getMonth() - 1);
+    renderCalendar();
+  });
+  document.getElementById('nextMonth').addEventListener('click', function(){
+    view.setMonth(view.getMonth() + 1);
+    renderCalendar();
+  });
+
+  async function init(){
+    try {
+      calendarData = await KB.loadCalendar();
+      const loc = calendarData.location;
+      document.getElementById('addressText').textContent = loc.address;
+      const d = 0.01;
+      const bbox = (loc.lng - d) + ',' + (loc.lat - d) + ',' + (loc.lng + d) + ',' + (loc.lat + d);
+      document.getElementById('mapFrame').src =
+        'https://www.openstreetmap.org/export/embed.html?bbox=' + bbox + '&layer=mapnik&marker=' + loc.lat + ',' + loc.lng;
+
+      renderCalendar();
+      const t = function(key) {
+        if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+          return KBUI.t(key);
+        }
+        return key;
+      };
+      slotList.innerHTML = '<div class="empty-state">' + t('select_day_hint') + '</div>';
+    } catch (err) {
+      const t = function(key) {
+        if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+          return KBUI.t(key);
+        }
+        return key;
+      };
+      grid.innerHTML = '<div class="empty-state">' + t('calendar_load_error') + '</div>';
+    } finally {
+      KBUI.hidePreloader();
+    }
+  }
+  init();
+
+  // ===== БУРГЕР =====
+  var burgerBtn = document.getElementById('burgerBtn');
+  var mainNav = document.getElementById('mainNav');
+  if (burgerBtn && mainNav) {
+    burgerBtn.addEventListener('click', function() {
+      this.classList.toggle('open');
+      mainNav.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+    });
+  }
+
+  // ===== ПОКАЗ/СКРЫТИЕ ССЫЛКИ "МОИ КУРСЫ" =====
+  function updateMyCoursesLink() {
+    var link = document.getElementById('myCoursesLink');
+    if (!link) return;
+    var session = null;
+    try {
+      var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+      if (raw) session = JSON.parse(raw);
+    } catch(e) {}
+    if (session && session.id) {
+      link.style.display = 'inline-block';
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        link.textContent = KBUI.t('nav_my_courses');
+      }
+    } else {
+      link.style.display = 'none';
+    }
+  }
+
+  // ===== ОБНОВЛЕНИЕ КНОПКИ ВХОДА/ВЫХОДА =====
+  function updateAuthButton() {
+    var link = document.getElementById('authLink');
+    if (!link) return;
+    var session = null;
+    try {
+      var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+      if (raw) session = JSON.parse(raw);
+    } catch(e) {}
+    var t = function(key) {
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        return KBUI.t(key);
+      }
+      return key === 'login' ? 'Войти' : 'Выйти';
+    };
+    if (session && session.id) {
+      link.textContent = t('logout');
+      link.href = '#';
+      link.onclick = function(e) {
+        e.preventDefault();
+        localStorage.removeItem('kidsbe_session_v1');
+        localStorage.removeItem('kidsbe_session');
+        if (typeof KB !== 'undefined' && typeof KB.logout === 'function') KB.logout();
+        window.location.href = 'index.html';
+      };
+    } else {
+      link.textContent = t('login');
+      link.href = 'auth.html';
+      link.onclick = null;
+    }
+  }
+
+  updateAuthButton();
+  updateMyCoursesLink();
+
+  document.addEventListener('kidsbe:langchange', function() {
+    updateAuthButton();
+    renderCalendar(); // перерисовываем календарь (месяцы, подписи ячеек)
+    // Обновляем слоты, если они открыты
+    var link = document.getElementById('myCoursesLink');
+    if (link && link.style.display !== 'none' && typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+      link.textContent = KBUI.t('nav_my_courses');
+    }
+    KBUI.applyI18n(); // обновит все статические элементы с data-i18n
+  });
+
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+      updateAuthButton();
+      updateMyCoursesLink();
+    }
+  });
+
+  setTimeout(function() {
+    updateAuthButton();
+    updateMyCoursesLink();
+  }, 500);
+
+})();
+</script>
+</body>
+</html>
