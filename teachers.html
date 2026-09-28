@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Педагоги — KidsBe</title>
+<script>
+(function(){
+  try{
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('kidsbe_theme') || 'light');
+    document.documentElement.setAttribute('data-palette', localStorage.getItem('kidsbe_palette') || 'purple');
+  }catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+  <div id="kbPreloader">
+    <div class="kb-spinner"></div>
+    <div class="kb-preloader-text" data-i18n="preloader_text">Загружаем KidsBe…</div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-wrapper"><img class="logo-img" src="img/logo.png" alt="KidsBe"></div>
+      <div class="tagline">продуктивный подход<br>к обучению детей</div>
+    </div>
+    <nav id="mainNav">
+      <a href="index.html" data-i18n="nav_home">Главная</a>
+      <a href="courses.html" data-i18n="nav_courses">Курсы</a>
+      <a href="calendar.html" data-i18n="nav_calendar">Календарь</a>
+      <a href="teachers.html" data-i18n="nav_teachers">Педагоги</a>
+      <a href="my-courses.html" id="myCoursesLink" style="display:none;" data-i18n="nav_my_courses">Мои курсы</a>
+    </nav>
+    <div class="socials">
+      <a href="#" aria-label="Instagram"><img src="/img/icons/1.svg" alt="Instagram"></a>
+      <a href="#" aria-label="YouTube"><img src="/img/icons/2.svg" alt="YouTube"></a>
+      <a href="#" aria-label="Facebook"><img src="/img/icons/3.svg" alt="Facebook"></a>
+      <a href="#" aria-label="VK"><img src="/img/icons/4.svg" alt="VK"></a>
+      <a href="#" aria-label="WhatsApp"><img src="/img/icons/5.svg" alt="WhatsApp"></a>
+      <a href="#" aria-label="Telegram"><img src="/img/icons/6.svg" alt="Telegram"></a>
+      <a href="#" aria-label="Viber"><img src="/img/icons/7.svg" alt="Viber"></a>
+    </div>
+    <a class="login-btn" href="auth.html" id="authLink">Войти</a>
+    <div id="settingsWidget"></div>
+    <button class="burger" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main class="app-main">
+    <div class="app-header">
+      <div class="app-eyebrow" data-i18n="teachers_eyebrow">Наша команда</div>
+      <h1 data-i18n="teachers_title">Педагоги, которые работают с вашим ребёнком</h1>
+      <p data-i18n="teachers_sub">Все преподаватели — практикующие специалисты по дошкольному развитию, дефектологии и раннему обучению языкам.</p>
+    </div>
+
+    <div class="teacher-filter" id="filterBar"></div>
+    <div class="teacher-grid" id="teacherGrid"></div>
+    <div class="kb-pagination" id="teacherPagination"></div>
+  </main>
+
+<script src="data.js"></script>
+<script src="app-common.js"></script>
+<script src="script.js"></script>
+<script>
+(function(){
+  // ===== ВИДЖЕТ НАСТРОЕК =====
+  KBUI.mountSettingsWidget('#settingsWidget');
+
+  // ===== КОНТРОЛЛЕРЫ (с i18n) =====
+  const grid = document.getElementById('teacherGrid');
+  const filterBar = document.getElementById('filterBar');
+  const pagination = document.getElementById('teacherPagination');
+  const PAGE_SIZE = 3;
+
+  let teachers = [];
+  let roles = [];
+  let activeRole = 'all';
+  let currentPage = 1;
+
+  function initials(name){
+    return name.split(' ').map(function(p){ return p[0]; }).slice(0,2).join('');
+  }
+
+  function renderFilters(){
+    filterBar.innerHTML = '';
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.className = 'option-pill' + (activeRole === 'all' ? ' active' : '');
+    allBtn.textContent = KBUI.t('teachers_filter_all');
+    allBtn.addEventListener('click', function(){ activeRole = 'all'; currentPage = 1; renderFilters(); renderTeachers(); });
+    filterBar.appendChild(allBtn);
+
+    roles.forEach(function(role){
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option-pill' + (activeRole === role ? ' active' : '');
+      // Роли не переводим, они из данных
+      btn.textContent = role;
+      btn.addEventListener('click', function(){ activeRole = role; currentPage = 1; renderFilters(); renderTeachers(); });
+      filterBar.appendChild(btn);
+    });
+  }
+
+  function filteredTeachers(){
+    return teachers.filter(function(t){ return activeRole === 'all' || t.role === activeRole; });
+  }
+
+  function renderPagination(totalItems){
+    pagination.innerHTML = '';
+    const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (totalPages <= 1) return;
+
+    const prev = document.createElement('button');
+    prev.type = 'button';
+    prev.textContent = KBUI.t('pagination_prev');
+    prev.disabled = currentPage === 1;
+    prev.addEventListener('click', function(){ currentPage--; renderTeachers(); });
+    pagination.appendChild(prev);
+
+    for (let p = 1; p <= totalPages; p++){
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = String(p);
+      b.className = p === currentPage ? 'active' : '';
+      b.addEventListener('click', function(){ currentPage = p; renderTeachers(); });
+      pagination.appendChild(b);
+    }
+
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.textContent = KBUI.t('pagination_next');
+    next.disabled = currentPage === totalPages;
+    next.addEventListener('click', function(){ currentPage++; renderTeachers(); });
+    pagination.appendChild(next);
+  }
+
+  function renderTeachers(){
+    grid.innerHTML = '';
+    const list = filteredTeachers();
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty-state">' + KBUI.t('teachers_empty') + '</div>';
+      pagination.innerHTML = '';
+      return;
+    }
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = list.slice(start, start + PAGE_SIZE);
+
+    pageItems.forEach(function(t, i){
+      const color = KB.AVATAR_COLORS[i % KB.AVATAR_COLORS.length];
+      const card = document.createElement('div');
+      card.className = 'teacher-card';
+      card.innerHTML =
+        '<div class="teacher-avatar" style="background:' + color + '">' + initials(t.name) + '</div>' +
+        '<h3>' + t.name + '</h3>' +
+        '<div class="role">' + t.role + '</div>' +
+        '<div class="bio">' + t.bio + '</div>' +
+        '<div class="teacher-meta">' +
+          '<div><b>' + t.exp + '</b> ' + KBUI.t('teachers_exp_label') + '</div>' +
+          '<div><b>' + t.students + '+</b> ' + KBUI.t('teachers_students_label') + '</div>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+
+    renderPagination(list.length);
+  }
+
+  async function init(){
+    try {
+      teachers = await KB.loadTeachers();
+      roles = Array.from(new Set(teachers.map(function(t){ return t.role; })));
+      renderFilters();
+      renderTeachers();
+    } catch (err) {
+      grid.innerHTML = '<div class="empty-state">' + KBUI.t('teachers_load_error') + '</div>';
+    } finally {
+      KBUI.hidePreloader();
+    }
+  }
+  init();
+
+  // ===== БУРГЕР =====
+  var burgerBtn = document.getElementById('burgerBtn');
+  var mainNav = document.getElementById('mainNav');
+  if (burgerBtn && mainNav) {
+    burgerBtn.addEventListener('click', function() {
+      this.classList.toggle('open');
+      mainNav.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+    });
+  }
+
+  // ===== ПОКАЗ/СКРЫТИЕ ССЫЛКИ "МОИ КУРСЫ" =====
+  function updateMyCoursesLink() {
+    var link = document.getElementById('myCoursesLink');
+    if (!link) return;
+    var session = null;
+    try {
+      var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+      if (raw) session = JSON.parse(raw);
+    } catch(e) {}
+    if (session && session.id) {
+      link.style.display = 'inline-block';
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        link.textContent = KBUI.t('nav_my_courses');
+      }
+    } else {
+      link.style.display = 'none';
+    }
+  }
+
+  // ===== ОБНОВЛЕНИЕ КНОПКИ ВХОДА/ВЫХОДА =====
+  function updateAuthButton() {
+    var link = document.getElementById('authLink');
+    if (!link) return;
+    var session = null;
+    try {
+      var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+      if (raw) session = JSON.parse(raw);
+    } catch(e) {}
+    var t = function(key) {
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        return KBUI.t(key);
+      }
+      return key === 'login' ? 'Войти' : 'Выйти';
+    };
+    if (session && session.id) {
+      link.textContent = t('logout');
+      link.href = '#';
+      link.onclick = function(e) {
+        e.preventDefault();
+        localStorage.removeItem('kidsbe_session_v1');
+        localStorage.removeItem('kidsbe_session');
+        if (typeof KB !== 'undefined' && typeof KB.logout === 'function') KB.logout();
+        window.location.href = 'index.html';
+      };
+    } else {
+      link.textContent = t('login');
+      link.href = 'auth.html';
+      link.onclick = null;
+    }
+  }
+
+  // Запускаем обновления
+  updateAuthButton();
+  updateMyCoursesLink();
+
+  // При смене языка обновляем всё
+  document.addEventListener('kidsbe:langchange', function() {
+    updateAuthButton();
+    // Обновляем текст ссылки "Мои курсы", если она видима
+    var link = document.getElementById('myCoursesLink');
+    if (link && link.style.display !== 'none' && typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+      link.textContent = KBUI.t('nav_my_courses');
+    }
+    // Перерисовываем фильтры и учителей, чтобы обновить переводы
+    if (teachers.length) {
+      renderFilters();
+      renderTeachers();
+    }
+  });
+
+  // При возврате на вкладку
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+      updateAuthButton();
+      updateMyCoursesLink();
+    }
+  });
+
+  // Дополнительная страховка
+  setTimeout(function() {
+    updateAuthButton();
+    updateMyCoursesLink();
+  }, 500);
+
+})();
+</script>
+</body>
+</html>
