@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KidsBe — продуктивный подход к обучению детей</title>
+  <script>
+  (function(){
+    try{
+      document.documentElement.setAttribute('data-theme', localStorage.getItem('kidsbe_theme') ||'light');
+      document.documentElement.setAttribute('data-palette', localStorage.getItem('kidsbe_palette') || 'purple');
+    }catch(e){}
+  })();
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+  <div id="kbPreloader">
+    <div class="kb-spinner"></div>
+    <div class="kb-preloader-text" data-i18n="preloader_text">Загружаем KidsBe…</div>
+  </div>
+  
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-wrapper"><img class="logo-img" src="img/logo.png" alt="KidsBe"></div>
+      <div class="tagline">продуктивный подход<br>к обучению детей</div>
+    </div>
+    <nav id="mainNav">
+      <a href="courses.html" data-i18n="nav_courses">Курсы</a>
+      <a href="calendar.html" data-i18n="nav_calendar">Календарь</a>
+      <a href="teachers.html" data-i18n="nav_teachers">Педагоги</a>
+      <a href="my-courses.html" id="myCoursesLink" style="display:none;" data-i18n="nav_my_courses">Мои курсы</a>
+    </nav>
+    <div class="socials">
+      <a href="#" aria-label="Instagram"><img src="/img/icons/1.svg" alt="Instagram"></a>
+      <a href="#" aria-label="YouTube"><img src="/img/icons/2.svg" alt="YouTube"></a>
+      <a href="#" aria-label="Facebook"><img src="/img/icons/3.svg" alt="Facebook"></a>
+      <a href="#" aria-label="VK"><img src="/img/icons/4.svg" alt="VK"></a>
+      <a href="#" aria-label="WhatsApp"><img src="/img/icons/5.svg" alt="WhatsApp"></a>
+      <a href="#" aria-label="Telegram"><img src="/img/icons/6.svg" alt="Telegram"></a>
+      <a href="#" aria-label="Viber"><img src="/img/icons/7.svg" alt="Viber"></a>
+    </div>
+    <a class="login-btn" href="auth.html" id="authLink">Войти</a>
+    <div id="settingsWidget"></div>
+    <button class="burger" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero wrapper">
+    <div class="hero-text">
+      <h1 data-i18n="hero_title">KidsBe - продуктивный подход к обучению детей от 3 до 7 лет</h1>
+      <p data-i18n="hero_sub">Книга + мобильное приложение + онлайн-школа работают как единая система для развития речи, ума и навыков общения</p>
+
+      <form class="lead-form">
+        <span class="code"></span>
+        <input type="tel" name="phone" placeholder="Ваш номер телефона" aria-label="Телефон" data-i18n-placeholder="hero_phone_placeholder">
+        <button type="submit" data-i18n="hero_btn">Получить демо-доступ</button>
+      </form>
+    </div>
+
+    <div class="hero-art">
+      <div class="blob purple"></div>
+      <div class="blob red"></div>
+      <div class="blob green"></div>
+      <img class="hero-photo" src="img/hero.png" alt="Дети занимаются с KidsBe">
+    </div>
+  </section>
+
+  <!-- ===== FEATURES ===== -->
+  <section class="features">
+    <div class="feature-card">
+      <img class="icon" src="img/house.svg" alt="Дом">
+      <p data-i18n="feature_1">Домашняя альтернатива детским центрам</p>
+    </div>
+    <div class="feature-card">
+      <img class="icon" src="img/wand.svg" alt="Палочка">
+      <p data-i18n="feature_2">Простое применение</p>
+    </div>
+    <div class="feature-card">
+      <img class="icon" src="img/calendar.svg" alt="Календарь">
+      <p data-i18n="feature_3">33 занятия за 2 месяца</p>
+    </div>
+    <div class="feature-card">
+      <img class="icon" src="img/video.svg" alt="Книга">
+      <p data-i18n="feature_4">Результат с первого урока</p>
+    </div>
+  </section>
+
+  <!-- ===== CAROUSEL ===== -->
+  <section class="kb-carousel-section">
+    <h2 data-i18n="gallery_title">Атмосфера наших занятий</h2>
+    <p class="gallery-sub" data-i18n="gallery_sub">Немного фотографий с офлайн- и онлайн-занятий KidsBe</p>
+    <div class="kb-carousel" id="kbCarousel">
+      <div class="kb-carousel-track" id="kbCarouselTrack">
+        <img src="/img/gallery/1.jpg" width="920" height="420" alt="Занятие KidsBe 1">
+        <img src="/img/gallery/2.jpg" width="920" height="420" alt="Занятие KidsBe 2">
+        <img src="/img/gallery/3.jpg" width="920" height="420" alt="Занятие KidsBe 3">
+        <img src="/img/gallery/3.jpg" width="920" height="420" alt="Занятие KidsBe 4">
+        <img src="/img/gallery/1.jpg" width="920" height="420" alt="Занятие KidsBe 5">
+        <img src="/img/gallery/2.jpg" width="920" height="420" alt="Занятие KidsBe 6">
+      </div>
+      <button type="button" class="kb-carousel-arrow prev" id="kbCarPrev" aria-label="Предыдущее фото">‹</button>
+      <button type="button" class="kb-carousel-arrow next" id="kbCarNext" aria-label="Следующее фото">›</button>
+    </div>
+    <div class="kb-carousel-dots" id="kbCarouselDots"></div>
+  </section>
+
+  <!-- ===== JOY ===== -->
+  <section class="joy wrapper">
+    <h2 data-i18n="joy_title">Откройте ребенку радость увлекательного развития без скуки и стресса</h2>
+
+    <div class="joy-grid">
+      <div class="joy-art">
+        <div class="shape yellow"></div>
+        <div class="shape green"></div>
+
+        <div class="card-book">
+          <div class="brain"></div>
+          <div class="kb-logo">KIDS<span class="b">B</span><span class="e">E</span></div>
+        </div>
+
+        <div class="card-notebook">
+          <span class="num-badge n1">6</span>
+          <span class="num-badge n2">7</span>
+          <div style="margin-top:26px;" data-i18n="joy_notebook_text">Пропиши буквы, обведи по точкам, назови слова на картинках</div>
+          <span class="letter">Я</span>
+          <div class="word">ЯБЛОКО</div>
+        </div>
+
+        <div class="card-tablet">
+          <div class="screen">
+            <div class="wordmark">eywa</div>
+            <div class="bars">
+              <span style="height:14px"></span>
+              <span style="height:26px"></span>
+              <span style="height:20px"></span>
+              <span style="height:32px"></span>
+              <span style="height:18px"></span>
+              <span style="height:24px"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-bubble left" data-i18n="joy_bubble_left">
+          Комплект включает печатные материалы, мобильное приложение и доступ к онлайн-школе — занятия проходят сразу в нескольких форматах
+        </div>
+        <div class="info-bubble right" data-i18n="joy_bubble_right">
+          Программа состоит из 33 уроков и рассчитана в среднем на 2 месяца, однако скорость прохождения у разных детей отличается
+        </div>
+      </div>
+
+      <div class="joy-copy">
+        <p class="intro" data-i18n="joy_intro">Практическое пособие KidsBe создано для домашнего обучения детей чтению, письму, мышлению и другим навыкам</p>
+
+        <div class="joy-cards">
+          <div class="joy-card" data-i18n="joy_card_1">Методика разработана специалистами по детскому развитию, поэтому эффективна и безопасна</div>
+          <div class="joy-card" data-i18n="joy_card_2">Задания продуманы таким образом, чтобы принести ребенку максимум пользы и удовольствия</div>
+        </div>
+
+        <p class="outro" data-i18n="joy_outro">Вы получите материалы с подробными инструкциями — просто следуйте рекомендациям, и все пройдет отлично</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BENEFITS ===== -->
+  <section class="benefits">
+    <h2 data-i18n="benefits_title">Занимайтесь с удовольствием и достигайте новых вершин следующие 2 месяца и всю жизнь</h2>
+    <p class="sub" data-i18n="benefits_sub">KidsBe — это комплексная программа, помогающая получить положительные результаты сразу в нескольких сферах</p>
+
+    <div class="benefit-grid">
+      <div class="benefit-item">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 120 100" width="120" height="100">
+            <path d="M35 20 C15 20 8 40 15 55 C8 65 15 82 32 80 C38 90 55 90 60 80 L60 25 C55 15 42 15 35 20 Z" fill="#F6C445"/>
+            <path d="M60 25 C65 15 78 15 85 20 C105 20 112 40 105 55 C112 65 105 82 88 80 C82 90 65 90 60 80 Z" fill="#5B4FE9"/>
+            <path d="M60 25 L60 80 C55 90 42 90 36 82 C42 70 44 55 44 45 C44 35 50 28 60 25 Z" fill="#3FBF71"/>
+            <path d="M60 25 C70 28 76 35 76 45 C76 55 78 70 84 82 C78 90 65 90 60 80 Z" fill="#E9573F"/>
+            <ellipse cx="55" cy="88" rx="20" ry="6" fill="#C9C6E0"/>
+          </svg>
+        </div>
+        <p data-i18n="benefits_item_1">Равномерное развитие обоих полушарий мозга и межполушарных связей</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 120 130" width="110" height="130">
+            <path d="M60 8 C85 8 98 30 96 52 C95 65 88 72 88 85 L88 100 C88 108 82 112 74 112 L54 112 C46 112 40 108 40 100 L40 85 C40 72 30 65 28 50 C25 28 40 8 60 8 Z" fill="#5B4FE9"/>
+            <circle cx="50" cy="45" r="24" fill="none" stroke="#F6C445" stroke-width="2" stroke-dasharray="4 4"/>
+            <circle cx="42" cy="55" r="5" fill="#F6C445"/>
+            <circle cx="58" cy="35" r="4" fill="#E9573F"/>
+            <path d="M46 62 l6 -6 l6 6" fill="none" stroke="#E9573F" stroke-width="3" stroke-linecap="round"/>
+            <path d="M60 42 l6 8" stroke="#3FBF71" stroke-width="3" stroke-linecap="round"/>
+            <polygon points="66,52 74,44 72,54 80,52 70,60" fill="#3FBF71"/>
+          </svg>
+        </div>
+        <p data-i18n="benefits_item_2">Укрепление памяти и внимания</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 140 140" width="130" height="130">
+            <rect x="20" y="95" width="100" height="30" rx="4" fill="#3FBF71"/>
+            <g>
+              <rect x="30" y="98" width="12" height="12" fill="#fff"/>
+              <rect x="54" y="98" width="12" height="12" fill="#0A3D2E"/>
+              <rect x="78" y="98" width="12" height="12" fill="#fff"/>
+              <rect x="102" y="98" width="12" height="12" fill="#0A3D2E"/>
+              <rect x="30" y="110" width="12" height="12" fill="#0A3D2E"/>
+              <rect x="54" y="110" width="12" height="12" fill="#fff"/>
+              <rect x="78" y="110" width="12" height="12" fill="#0A3D2E"/>
+              <rect x="102" y="110" width="12" height="12" fill="#fff"/>
+            </g>
+            <circle cx="70" cy="35" r="16" fill="#E9573F"/>
+            <path d="M50 55 C50 40 58 33 70 33 C82 33 90 40 90 55 L90 78 C90 86 82 90 70 90 C58 90 50 86 50 78 Z" fill="#F6C445"/>
+            <rect x="55" y="60" width="30" height="20" rx="4" fill="#5B4FE9"/>
+          </svg>
+        </div>
+        <p data-i18n="benefits_item_3">Развитие мышления и познавательного интереса</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 160 120" width="140" height="110">
+            <polygon points="10,60 60,20 55,55 90,50" fill="#F6C445"/>
+            <polygon points="55,55 90,50 60,90" fill="#3FBF71"/>
+            <polygon points="60,20 90,50 100,15" fill="#5B4FE9"/>
+            <polygon points="60,90 90,50 55,55" fill="#E9573F"/>
+          </svg>
+        </div>
+        <p data-i18n="benefits_item_4">Раскрытие творческих способностей</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 160 150" width="140" height="140">
+            <path d="M80 15 C50 15 45 50 55 65 C40 75 35 100 50 118 L110 118 C125 100 120 75 105 65 C115 50 110 15 80 15 Z" fill="#5B4FE9"/>
+            <circle cx="70" cy="55" r="14" fill="#F3C7A0"/>
+            <circle cx="55" cy="95" r="12" fill="#F3C7A0"/>
+            <circle cx="90" cy="100" r="10" fill="#F3C7A0"/>
+            <path d="M45 100 C45 88 52 82 60 82" fill="none" stroke="#E9573F" stroke-width="6" stroke-linecap="round"/>
+            <path d="M100 105 C100 95 94 90 88 90" fill="none" stroke="#F6C445" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p data-i18n="benefits_item_5">Налаживание эмоциональных связей с родителями</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 140 140" width="120" height="130">
+            <polygon points="10,120 70,50 130,120" fill="#3FBF71"/>
+            <polygon points="70,50 95,120 45,120" fill="#2FA05E"/>
+            <line x1="85" y1="45" x2="85" y2="15" stroke="#5B4FE9" stroke-width="4"/>
+            <polygon points="85,15 110,25 85,35" fill="#5B4FE9"/>
+            <circle cx="80" cy="55" r="10" fill="#F3C7A0"/>
+            <rect x="70" y="65" width="22" height="24" rx="6" fill="#F6C445"/>
+            <rect x="70" y="85" width="10" height="18" fill="#3B5BA9"/>
+            <rect x="82" y="85" width="10" height="18" fill="#3B5BA9"/>
+          </svg>
+        </div>
+        <p data-i18n="benefits_item_6">Повышение самостоятельности</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HARMONY ===== -->
+  <section class="harmony wrapper">
+    <div class="harmony-copy">
+      <h2 data-i18n="harmony_title">Гармония традиционных методик и новейших возможностей педагогики</h2>
+      <p data-i18n="harmony_sub">Практическое пособие KidsBe совмещает офлайн и онлайн-занятия. Ребенок привыкает учиться в нескольких форматах:</p>
+
+      <div class="harmony-points">
+        <div class="harmony-point">
+          <div class="hicon">
+            <svg viewBox="0 0 44 44" width="40" height="40">
+              <path d="M22 10 C16 8 8 9 8 9 L8 32 C8 32 16 31 22 33 C28 31 36 32 36 32 L36 9 C36 9 28 8 22 10 Z" fill="none" stroke="#3FBF71" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="22" y1="10" x2="22" y2="33" stroke="#3FBF71" stroke-width="2.5"/>
+            </svg>
+          </div>
+          <p data-i18n="harmony_point_1">Читать и писать с помощью красивых книг, прописей, карточек</p>
+        </div>
+        <div class="harmony-point">
+          <div class="hicon">
+            <svg viewBox="0 0 44 44" width="30" height="40">
+              <rect x="12" y="6" width="20" height="32" rx="4" fill="none" stroke="#E9573F" stroke-width="2.5"/>
+              <path d="M17 6 L17 16 L22 12 L27 16 L27 6 Z" fill="#E9573F"/>
+            </svg>
+          </div>
+          <p data-i18n="harmony_point_2">Слушать, запоминать и играть в мобильном приложении</p>
+        </div>
+      </div>
+
+      <p class="final-p" data-i18n="harmony_final">Разные варианты работы поддерживают интерес ребенка к занятиям и взаимно усиливают друг друга, что помогает учиться без скуки и развиваться гармонично.</p>
+    </div>
+
+    <div class="harmony-art">
+      <div class="blob-bg"></div>
+      <img class="harmony-photo" src="img/harmony.png" alt="Дети занимаются офлайн и онлайн с KidsBe">
+    </div>
+  </section>
+
+  <!-- ===== CTA BANNER ===== -->
+  <section class="cta-banner">
+    <div class="cta-copy">
+      <h2 data-i18n="cta_banner_title">33 занятия — и ваш ребенок на <span class="hl">новом уровне</span> знаний</h2>
+      <p data-i18n="cta_banner_sub">Учитесь без скуки и стресса с KidsBe</p>
+
+      <form>
+        <div class="cta-form">
+          <div class="cta-field">
+            <label data-i18n="cta_banner_name_label">Ваше имя</label>
+            <input type="text" name="name" placeholder="Александр" data-i18n-placeholder="cta_banner_name_placeholder">
+          </div>
+          <div class="cta-field">
+            <label data-i18n="cta_banner_phone_label">Ваш телефон</label>
+            <input type="tel" name="phone" placeholder="+ 375" data-i18n-placeholder="cta_banner_phone_placeholder">
+          </div>
+        </div>
+        <div class="cta-consent">
+          <span>✓</span>
+          <span data-i18n="cta_banner_consent">Нажимая на кнопку, Вы даёте согласие на обработку персональных данных</span>
+        </div>
+        <button class="cta-submit" type="submit" data-i18n="cta_banner_btn">Узнать стоимость</button>
+      </form>
+    </div>
+
+    <div class="cta-art">
+      <div class="shape green-tab"></div>
+      <div class="shape red-tab"></div>
+      <div class="shape yellow-tab"></div>
+      <img class="cta-photo" src="img/cta-banner.png" alt="Ребенок с книгой KidsBe">
+    </div>
+  </section>
+
+  <!-- ===== APP TOOLS ===== -->
+  <section class="app-tools">
+    <h2 data-i18n="app_tools_title">Полный арсенал развивающих инструментов в вашем смартфоне</h2>
+    <p class="sub" data-i18n="app_tools_sub">Часть заданий и полезной информации для родителей доступна в мобильном приложении. Оно включает:</p>
+
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="ticon">
+          <svg viewBox="0 0 40 40" width="28" height="28">
+            <rect x="4" y="7" width="32" height="28" rx="3" fill="none" stroke="#F6C445" stroke-width="2.5"/>
+            <line x1="4" y1="15" x2="36" y2="15" stroke="#F6C445" stroke-width="2.5"/>
+            <line x1="12" y1="4" x2="12" y2="10" stroke="#F6C445" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="28" y1="4" x2="28" y2="10" stroke="#F6C445" stroke-width="2.5" stroke-linecap="round"/>
+            <rect x="9" y="20" width="4" height="4" fill="#F6C445"/>
+            <rect x="18" y="20" width="4" height="4" fill="#F6C445"/>
+            <rect x="27" y="20" width="4" height="4" fill="#F6C445"/>
+            <rect x="9" y="27" width="4" height="4" fill="#F6C445"/>
+            <rect x="18" y="27" width="4" height="4" fill="#F6C445"/>
+          </svg>
+        </div>
+        <p data-i18n="app_tools_card_1">Карты развития ФГОС — перечни умений и навыков детей в разном возрасте и бланки для личных заметок — просто введите возраст ребенка, и приложение покажет, что он уже должен уметь.</p>
+      </div>
+
+      <div class="tool-card">
+        <div class="ticon">
+          <svg viewBox="0 0 40 40" width="28" height="28">
+            <path d="M15 10 a5 5 0 1 1 6 5 h4 a5 5 0 1 1 5 6 v4 a5 5 0 1 1 -6 5 h-4 a5 5 0 1 1 -5 -6 v-4 a5 5 0 1 1 -5 -6 z" fill="none" stroke="var(--purple)" stroke-width="2.2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p data-i18n="app_tools_card_2">Мультфильмы и мини-игры с элементами дополненной реальности для вовлечения в образовательный процесс.</p>
+      </div>
+
+      <div class="tool-card">
+        <div class="ticon">
+          <svg viewBox="0 0 40 40" width="28" height="28">
+            <rect x="4" y="9" width="32" height="20" rx="3" fill="none" stroke="var(--red)" stroke-width="2.2"/>
+            <polygon points="17,14 26,19 17,24" fill="var(--red)"/>
+            <line x1="14" y1="33" x2="26" y2="33" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p data-i18n="app_tools_card_3">Видеоуроки с подробными инструкциями по выполнению физических и логопедических упражнений.</p>
+      </div>
+
+      <div class="tool-card">
+        <div class="ticon">
+          <svg viewBox="0 0 40 40" width="28" height="28">
+            <path d="M6 10 h20 v14 h-8 l-5 5 v-5 H6 z" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linejoin="round"/>
+            <path d="M14 28 h14 l5 5 v-5 h3 v-12 h-6" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p data-i18n="app_tools_card_4">Чат со специалистами для оперативной поддержки и личных консультаций.</p>
+      </div>
+    </div>
+
+    <p class="closing" data-i18n="app_tools_closing">Приложение удобно и интуитивно понятно.<br>Все получится, даже если вы впервые пробуете такой формат обучения.</p>
+  </section>
+
+  <!-- ===== SUPPORT ===== -->
+  <section class="support wrapper">
+    <div class="chat-thread">
+      <div class="chat-row">
+        <div class="avatar" style="background:#E9573F;" data-i18n="chat_name_sv">СВ</div>
+        <div class="bubble purple">
+          <div class="who" data-i18n="chat_name_sv">Светлана</div>
+          <p data-i18n="chat_message_1">А можно каким-нибудь образом посмотреть видеоинструкции, в которых показано правильное выполнение дыхательной и пальчиковой гимнастики?</p>
+        </div>
+      </div>
+
+      <div class="chat-row">
+        <div class="avatar">KIDS<br>BE</div>
+        <div class="bubble green">
+          <div class="who" data-i18n="chat_name_support">Служба поддержки</div>
+          <p data-i18n="chat_message_2">Откройте приложение и наведите камеру смартфона на первую иллюстрацию любого занятия, после этого нажмите на появившуюся кнопку «видео уроки».</p>
+        </div>
+      </div>
+
+      <div class="chat-row">
+        <div class="avatar" style="background:#3B5BA9;" data-i18n="chat_name_sv">СВ</div>
+        <div class="bubble purple">
+          <div class="who" data-i18n="chat_name_sv">Светлана</div>
+          <p data-i18n="chat_message_3">Спасибо большое. Ребенку очень нравится 👍</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="support-copy">
+      <h2 data-i18n="support_title">Пошаговые инструкции и обратная связь от экспертов</h2>
+      <p data-i18n="support_text_1">В обучающую методику интегрирована онлайн-школа KidsBe. С первого дня вы получите доступ к пошаговым инструкциям по домашнему обучению в целом и отдельным занятиям в частности. Полезные советы и видеоинструкции упростят обучение ребенка.</p>
+      <p data-i18n="support_text_2">В онлайн-школе вы будете получать от педагогов обратную связь по прогрессу, проверку домашних заданий и персональные рекомендации.</p>
+    </div>
+  </section>
+
+  <!-- ===== AR SECTION ===== -->
+  <section class="ar-section wrapper">
+    <div class="ar-copy">
+      <h2 data-i18n="ar_title">Исследуйте мир в дополненной реальности</h2>
+      <p data-i18n="ar_text_1">С помощью фигурок героев и моделей KidsBe ребенок запомнит животных, углубит знания о природе и планете, а также разовьет мелкую моторику рук.</p>
+      <p data-i18n="ar_text_2">Яркие впечатления малышу подарят игры с элементами дополненной реальности: интересные персонажи и звери оживут на экране телефона. Ассоциативные мультфильмы помогут детям вовлечься в образовательный процесс и научиться мыслить по-новому.</p>
+    </div>
+
+    <div class="ar-art">
+      <img class="ar-photo" src="img/ar-section.png" alt="Дополненная реальность в приложении KidsBe">
+    </div>
+  </section>
+
+  <!-- ===== CTA GREEN ===== -->
+  <section class="cta-green">
+    <div class="cta-copy">
+      <h2><span class="hl" data-i18n="cta_green_title">Современный</span></h2>
+      <p data-i18n="cta_green_sub">Покажите ребенку, что учиться — это весело</p>
+
+      <form>
+        <div class="cta-form">
+          <div class="cta-field">
+            <label data-i18n="cta_banner_name_label">Ваше имя</label>
+            <input type="text" name="name" placeholder="Александр" data-i18n-placeholder="cta_banner_name_placeholder">
+          </div>
+          <div class="cta-field">
+            <label data-i18n="cta_banner_phone_label">Ваш телефон</label>
+            <input type="tel" name="phone" placeholder="+ 375" data-i18n-placeholder="cta_banner_phone_placeholder">
+          </div>
+        </div>
+        <div class="cta-consent">
+          <span>✓</span>
+          <span data-i18n="cta_banner_consent">Нажимая на кнопку, Вы даёте согласие на обработку персональных данных</span>
+        </div>
+        <button class="cta-submit" type="submit" data-i18n="cta_green_btn">Узнать стоимость</button>
+      </form>
+    </div>
+
+    <div class="cta-green-art">
+      <div class="shape purple-c"></div>
+      <div class="shape red-c"></div>
+      <div class="shape yellow-c"></div>
+      <img class="cta-photo" src="img/cta-green.png" alt="Девочка с наушниками и телефоном">
+    </div>
+  </section>
+
+  <!-- ===== AUTHOR SECTION ===== -->
+  <section class="author-section">
+    <div class="author-card">
+      <div class="author-art">
+        <img class="author-photo" src="img/author-section.png" alt="Автор методики KidsBe">
+      </div>
+
+      <div class="author-copy">
+        <h2 data-i18n="author_title">Раскройте педагогический потенциал</h2>
+        <p data-i18n="author_text_1">KidsBe развивается и создает инновационные обучающие программы для детей, поэтому мы открыты для сотрудничества с новыми авторами.</p>
+        <p class="strong-line" data-i18n="author_text_2">Если вы активный родитель, специалист в этой области или просто располагаете хорошей идеей, обратитесь к нам.</p>
+        <p data-i18n="author_text_3">Вместе мы сделаем дошкольное образование еще интереснее — приходите сами и приводите друзей.</p>
+        <a class="author-btn" href="#" data-i18n="author_btn">Стать автором</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ADVANTAGES ===== -->
+  <section class="advantages">
+    <h2 data-i18n="advantages_title">Оптимальное решение для тех, кто выбирает счастливое будущее</h2>
+
+    <div class="adv-grid">
+      <div class="adv-card">
+        <div class="aicon">
+          <svg viewBox="0 0 40 40" width="30" height="30">
+            <rect x="4" y="7" width="32" height="28" rx="3" fill="none" stroke="var(--red)" stroke-width="2.3"/>
+            <line x1="4" y1="15" x2="36" y2="15" stroke="var(--red)" stroke-width="2.3"/>
+            <line x1="12" y1="4" x2="12" y2="10" stroke="var(--red)" stroke-width="2.3" stroke-linecap="round"/>
+            <line x1="28" y1="4" x2="28" y2="10" stroke="var(--red)" stroke-width="2.3" stroke-linecap="round"/>
+            <path d="M11 24 l3 3 l6 -8" fill="none" stroke="var(--red)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <h3 data-i18n="adv_card_1_title">Гибкий график</h3>
+          <p data-i18n="adv_card_1_text">Комплекс позволяет заниматься с ребенком, когда удобно вам, без привязки к расписанию детского центра или специалиста.</p>
+        </div>
+      </div>
+
+      <div class="adv-card">
+        <div class="aicon">
+          <svg viewBox="0 0 40 40" width="26" height="30">
+            <rect x="11" y="4" width="18" height="32" rx="4" fill="none" stroke="var(--purple)" stroke-width="2.3"/>
+            <line x1="11" y1="10" x2="29" y2="10" stroke="var(--purple)" stroke-width="2.3"/>
+            <line x1="11" y1="28" x2="29" y2="28" stroke="var(--purple)" stroke-width="2.3"/>
+          </svg>
+        </div>
+        <div>
+          <h3 data-i18n="adv_card_2_title">Дистанционное обучение</h3>
+          <p data-i18n="adv_card_2_text">Занимайтесь дома и в поездках — нужны только печатные материалы и смартфон.</p>
+        </div>
+      </div>
+
+      <div class="adv-card">
+        <div class="aicon">
+          <svg viewBox="0 0 40 40" width="30" height="30">
+            <circle cx="12" cy="10" r="6" fill="none" stroke="var(--green)" stroke-width="2.3"/>
+            <circle cx="28" cy="10" r="6" fill="none" stroke="var(--green)" stroke-width="2.3"/>
+            <rect x="6" y="24" width="12" height="12" fill="none" stroke="var(--green)" stroke-width="2.3"/>
+            <rect x="22" y="24" width="12" height="12" fill="none" stroke="var(--green)" stroke-width="2.3"/>
+          </svg>
+        </div>
+        <div>
+          <h3 data-i18n="adv_card_3_title">Персональная программа</h3>
+          <p data-i18n="adv_card_3_text">Уроки легко адаптировать под вашего малыша — возраст, характер, уровень знаний и даже настроение.</p>
+        </div>
+      </div>
+
+      <div class="adv-card">
+        <div class="aicon">
+          <svg viewBox="0 0 40 40" width="30" height="30">
+            <circle cx="20" cy="18" r="12" fill="none" stroke="#F6C445" stroke-width="2.3"/>
+            <circle cx="16" cy="16" r="1.6" fill="#F6C445"/>
+            <circle cx="24" cy="16" r="1.6" fill="#F6C445"/>
+            <path d="M15 22 q5 4 10 0" fill="none" stroke="#F6C445" stroke-width="2.3" stroke-linecap="round"/>
+            <path d="M20 6 q3 -4 7 -2" fill="none" stroke="var(--red)" stroke-width="2.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h3 data-i18n="adv_card_4_title">Для детей с особенностями развития</h3>
+          <p data-i18n="adv_card_4_text">Программа подходит малышам с ЗРР, ЗПР и СДВГ</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="testimonials">
+    <h2 data-i18n="testimonials_title">Родители и педагоги отмечают захватывающее содержание и эффективность методик</h2>
+
+    <div class="tab-switch">
+      <button class="active" data-i18n="testimonials_tab_parents">Родители</button>
+      <button data-i18n="testimonials_tab_teachers">Педагоги</button>
+    </div>
+
+    <div class="testi-top">
+      <div class="video-card">
+        <div class="kids-row">
+          <div class="kid-dot"></div>
+          <div class="kid-dot" style="height:70px;"></div>
+          <div class="kid-dot" style="height:90px;"></div>
+        </div>
+        <div class="age-badge">3-7<br>лет</div>
+        <div class="play-btn">▶</div>
+        <h3 data-i18n="testimonials_video_title">Методика для развития детей</h3>
+        <div class="video-tags">
+          <span data-i18n="testimonials_video_tag1">Психология</span>
+          <span data-i18n="testimonials_video_tag2">Физиология</span>
+          <span data-i18n="testimonials_video_tag3">Педагогика</span>
+        </div>
+      </div>
+
+      <div class="audio-list">
+        <div class="audio-row"><div class="aplay">▶</div><div class="track" style="--w:20%"></div><div class="dur">00:23</div></div>
+        <div class="audio-row"><div class="aplay">▶</div><div class="track"></div><div class="dur">00:52</div></div>
+        <div class="audio-row"><div class="aplay">▶</div><div class="track"></div><div class="dur">00:36</div></div>
+        <div class="audio-row"><div class="aplay">▶</div><div class="track"></div><div class="dur">00:21</div></div>
+      </div>
+    </div>
+
+    <div class="testi-bottom">
+      <div class="review-card">
+        <p class="rtext" data-i18n="testimonials_review_1">«Мы занимаемся уже второй месяц, и я вижу, как сын стал увереннее говорить и с удовольствием садится за занятия сам, без напоминаний».</p>
+        <button class="ask-btn" data-i18n="testimonials_ask_btn">Спросить лично</button>
+      </div>
+      <div class="review-card">
+        <p class="rtext" data-i18n="testimonials_review_2">«Понравился формат — печатные материалы плюс приложение. Ребенку интересно, а мне удобно следить за прогрессом и рекомендациями педагогов».</p>
+        <button class="ask-btn" data-i18n="testimonials_ask_btn">Спросить лично</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA RED ===== -->
+  <section class="cta-red">
+    <div class="cta-copy">
+      <h2><span class="hl" data-i18n="cta_red_title">Откройте мир</span></h2>
+      <p data-i18n="cta_red_sub">Пусть старт в образовании пройдет без стресса и скуки</p>
+
+      <form>
+        <div class="cta-form">
+          <div class="cta-field">
+            <label data-i18n="cta_banner_name_label">Ваше имя</label>
+            <input type="text" name="name" placeholder="Александр" data-i18n-placeholder="cta_banner_name_placeholder">
+          </div>
+          <div class="cta-field">
+            <label data-i18n="cta_banner_phone_label">Ваш телефон</label>
+            <input type="tel" name="phone" placeholder="+ 375" data-i18n-placeholder="cta_banner_phone_placeholder">
+          </div>
+        </div>
+        <div class="cta-consent">
+          <span>✓</span>
+          <span data-i18n="cta_banner_consent">Нажимая на кнопку, Вы даёте согласие на обработку персональных данных</span>
+        </div>
+        <button class="cta-submit" type="submit" data-i18n="cta_red_btn">Узнать стоимость</button>
+      </form>
+    </div>
+
+    <div class="cta-red-art">
+      <div class="shape purple-r"></div>
+      <div class="shape green-r"></div>
+      <div class="shape yellow-r"></div>
+      <img class="cta-photo" src="img/cta-red.png" alt="Девочка с книгой и очками">
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-legal">
+      <span data-i18n="footer_legal">ИП Максименко Павел Викторович</span>
+      <span data-i18n="footer_inn">ИНН 860702788054</span>
+      <span data-i18n="footer_ogrn">ОГРНИП 311860718500013</span>
+    </div>
+    <div class="footer-social">
+      <a href="#" aria-label="Instagram"><img src="/img/icons/8.svg" alt="Instagram"></a>
+      <a href="#" aria-label="YouTube"><img src="/img/icons/9.svg" alt="YouTube"></a>
+      <a href="#" aria-label="Facebook"><img src="/img/icons/10.svg" alt="Facebook"></a>
+      <a href="#" aria-label="VK"><img src="/img/icons/11.svg" alt="VK"></a>
+      <a href="#" aria-label="WhatsApp"><img src="/img/icons/12.svg" alt="WhatsApp"></a>
+      <a href="#" aria-label="Telegram"><img src="/img/icons/13.svg" alt="Telegram"></a>
+      <a href="#" aria-label="Viber"><img src="/img/icons/14.svg" alt="Viber"></a>
+    </div>
+  </footer>
+
+<script src="data.js"></script>
+<script src="app-common.js"></script>
+<script src="script.js"></script>
+<script>
+(function(){
+  // ===== ФУНКЦИЯ ПОЛУЧЕНИЯ СЕССИИ (из localStorage) =====
+  function getSessionFromStorage() {
+    try {
+      var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return null;
+  }
+
+  // ===== БУРГЕР =====
+  var burgerBtn = document.getElementById('burgerBtn');
+  var mainNav = document.getElementById('mainNav');
+  if (burgerBtn && mainNav) {
+    burgerBtn.addEventListener('click', function() {
+      this.classList.toggle('open');
+      mainNav.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+    });
+  }
+
+  // ===== ОБНОВЛЕНИЕ КНОПКИ ВХОДА/ВЫХОДА =====
+  function updateAuthButton() {
+    var link = document.getElementById('authLink');
+    if (!link) return;
+
+    var session = getSessionFromStorage();
+    var t = function(key) {
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        return KBUI.t(key);
+      }
+      return key === 'login' ? 'Войти' : 'Выйти';
+    };
+
+    if (session && session.id) {
+      link.textContent = t('logout');
+      link.href = '#';
+      link.onclick = function(e) {
+        e.preventDefault();
+        localStorage.removeItem('kidsbe_session_v1');
+        localStorage.removeItem('kidsbe_session');
+        if (typeof KB !== 'undefined' && typeof KB.logout === 'function') KB.logout();
+        window.location.href = 'index.html';
+      };
+    } else {
+      link.textContent = t('login');
+      link.href = 'auth.html';
+      link.onclick = null;
+    }
+  }
+
+  // ===== ПОКАЗ/СКРЫТИЕ ССЫЛКИ "МОИ КУРСЫ" =====
+  function updateMyCoursesLink() {
+    var link = document.getElementById('myCoursesLink');
+    if (!link) return;
+    var session = getSessionFromStorage();
+    if (session && session.id) {
+      link.style.display = 'inline-block';
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        link.textContent = KBUI.t('nav_my_courses');
+      }
+    } else {
+      link.style.display = 'none';
+    }
+  }
+
+  // ===== ВИДЖЕТ НАСТРОЕК =====
+  if (typeof KBUI !== 'undefined' && typeof KBUI.mountSettingsWidget === 'function') {
+    KBUI.mountSettingsWidget('#settingsWidget');
+  }
+
+  // ===== КАРУСЕЛЬ =====
+  var track = document.getElementById('kbCarouselTrack');
+  var dotsWrap = document.getElementById('kbCarouselDots');
+  var slides = track ? track.querySelectorAll('img') : [];
+  if (slides.length > 0) {
+    var current = 0;
+    slides.forEach(function(_, i){
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.addEventListener('click', function(){ goTo(i); });
+      dotsWrap.appendChild(dot);
+    });
+    var dots = dotsWrap.querySelectorAll('button');
+    function goTo(i){
+      current = (i + slides.length) % slides.length;
+      track.style.transform = 'translateX(-' + (current * 100) + '%)';
+      dots.forEach(function(d, idx){ d.classList.toggle('active', idx === current); });
+    }
+    var prevBtn = document.getElementById('kbCarPrev');
+    var nextBtn = document.getElementById('kbCarNext');
+    if (prevBtn) prevBtn.addEventListener('click', function(){ goTo(current - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function(){ goTo(current + 1); });
+    goTo(0);
+    var carouselTimer = setInterval(function(){ goTo(current + 1); }, 5000);
+    var carousel = document.getElementById('kbCarousel');
+    if (carousel) {
+      carousel.addEventListener('mouseenter', function(){ clearInterval(carouselTimer); });
+    }
+  }
+
+  // ===== ПРЕЛОУДЕР =====
+  window.addEventListener('load', function(){
+    if (typeof KBUI !== 'undefined' && typeof KBUI.hidePreloader === 'function') {
+      KBUI.hidePreloader();
+    }
+  });
+
+  // ===== КНОПКА "ЗАКАЗАТЬ ЗВОНОК" =====
+  var callBtn = document.querySelector('.call-btn');
+  if (callBtn) {
+    callBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (typeof KBUI !== 'undefined' && typeof KBUI.showModal === 'function') {
+        KBUI.showModal('Спасибо за заявку!', 'Мы перезвоним вам в ближайшее время.');
+      } else {
+        alert('Спасибо! Мы перезвоним вам.');
+      }
+    });
+  }
+
+  // ===== ЗАПУСК ОБНОВЛЕНИЙ =====
+  updateAuthButton();
+  updateMyCoursesLink();
+
+  // Подписки на события
+  document.addEventListener('kidsbe:langchange', function() {
+    updateAuthButton();
+    // Обновляем текст ссылки, если она видима
+    var link = document.getElementById('myCoursesLink');
+    if (link && link.style.display !== 'none' && typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+      link.textContent = KBUI.t('nav_my_courses');
+    }
+  });
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+      updateAuthButton();
+      updateMyCoursesLink();
+    }
+  });
+  setTimeout(function() {
+    updateAuthButton();
+    updateMyCoursesLink();
+  }, 500);
+
+})();
+</script>
+</body>
+</html>
