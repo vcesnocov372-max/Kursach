@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход и регистрация — KidsBe</title>
+<script>
+(function(){
+  try{
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('kidsbe_theme') || 'light');
+    document.documentElement.setAttribute('data-palette', localStorage.getItem('kidsbe_palette') || 'purple');
+  }catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+  <div id="kbPreloader">
+    <div class="kb-spinner"></div>
+    <div class="kb-preloader-text" data-i18n="preloader_text">Загружаем KidsBe…</div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-wrapper"><img class="logo-img" src="img/logo.png" alt="KidsBe"></div>
+      <div class="tagline">продуктивный подход<br>к обучению детей</div>
+    </div>
+    <nav id="mainNav">
+      <a href="index.html" data-i18n="nav_home">Главная</a>
+      <a href="courses.html" data-i18n="nav_courses">Курсы</a>
+      <a href="calendar.html" data-i18n="nav_calendar">Календарь</a>
+      <a href="teachers.html" data-i18n="nav_teachers">Педагоги</a>
+      <a href="my-courses.html" id="myCoursesLink" style="display:none;" data-i18n="nav_my_courses">Мои курсы</a>
+    </nav>
+    <div class="socials">
+      <a href="#" aria-label="Instagram"><img src="/img/icons/1.svg" alt="Instagram"></a>
+      <a href="#" aria-label="YouTube"><img src="/img/icons/2.svg" alt="YouTube"></a>
+      <a href="#" aria-label="Facebook"><img src="/img/icons/3.svg" alt="Facebook"></a>
+      <a href="#" aria-label="VK"><img src="/img/icons/4.svg" alt="VK"></a>
+      <a href="#" aria-label="WhatsApp"><img src="/img/icons/5.svg" alt="WhatsApp"></a>
+      <a href="#" aria-label="Telegram"><img src="/img/icons/6.svg" alt="Telegram"></a>
+      <a href="#" aria-label="Viber"><img src="/img/icons/7.svg" alt="Viber"></a>
+    </div>
+    <a class="login-btn" href="auth.html" id="authLink">Войти</a>
+    <div id="settingsWidget"></div>
+    <button class="burger" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- Основной контент -->
+  <section class="auth-section">
+    <div class="auth-visual">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <div class="auth-visual-card">
+        <h2 data-i18n="auth_visual_title">Личный кабинет KidsBe</h2>
+        <p data-i18n="auth_visual_sub">Отслеживайте прогресс ребёнка, записывайтесь на занятия и собирайте курс под свои задачи в конструкторе.</p>
+      </div>
+    </div>
+
+    <div class="auth-form-side">
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLogin" type="button" data-i18n="auth_login_tab">Вход</button>
+          <button class="auth-tab" id="tabRegister" type="button" data-i18n="auth_register_tab">Регистрация</button>
+        </div>
+
+        <div id="msgBox" class="auth-msg"></div>
+
+        <!-- Логин -->
+        <form id="loginForm" novalidate>
+          <div class="auth-title" data-i18n="auth_login_title">С возвращением!</div>
+          <div class="auth-sub" data-i18n="auth_login_sub">Войдите, чтобы продолжить обучение</div>
+
+          <div class="auth-method-set" id="loginMethodSet">
+            <button type="button" class="active" data-method="email" data-i18n="auth_via_email">Через почту</button>
+            <button type="button" data-method="phone" data-i18n="auth_via_phone">Через телефон</button>
+          </div>
+
+          <div class="form-field" id="loginEmailField">
+            <label for="loginEmail" data-i18n="auth_email">Электронная почта</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" data-i18n-placeholder="auth_email_placeholder">
+            <div class="form-error" data-i18n="auth_email_error">Введите корректный email</div>
+          </div>
+          <div class="form-field" id="loginPhoneField" style="display:none;">
+            <label for="loginPhone" data-i18n="auth_phone">Номер телефона</label>
+            <input type="tel" id="loginPhone" placeholder="+375 29 000-00-00" autocomplete="tel" data-i18n-placeholder="auth_phone_placeholder">
+            <div class="form-error" data-i18n="auth_phone_error">Введите корректный номер телефона</div>
+          </div>
+          <div class="form-field" id="loginPassField">
+            <label for="loginPassword" data-i18n="auth_password">Пароль</label>
+            <input type="password" id="loginPassword" placeholder="Минимум 6 символов" autocomplete="current-password" data-i18n-placeholder="auth_password_placeholder">
+            <div class="form-error" data-i18n="auth_password_error">Пароль должен быть не короче 6 символов</div>
+          </div>
+
+          <div class="form-row-inline">
+            <label><input type="checkbox" id="rememberMe"> <span data-i18n="auth_remember">Запомнить меня</span></label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;" data-i18n="auth_submit_login">Войти</button>
+        </form>
+
+        <!-- Регистрация -->
+        <form id="registerForm" novalidate style="display:none;">
+          <div class="auth-title" data-i18n="auth_register_title">Создать аккаунт</div>
+          <div class="auth-sub" data-i18n="auth_register_sub">Заполните все обязательные поля</div>
+
+          <div class="form-row-3">
+            <div class="form-field">
+              <label for="regSurname" data-i18n="auth_surname">Фамилия</label>
+              <input type="text" id="regSurname" placeholder="Иванов" autocomplete="family-name" data-i18n-placeholder="auth_surname_placeholder">
+              <div class="form-error" data-i18n="auth_surname_error">Введите фамилию</div>
+            </div>
+            <div class="form-field">
+              <label for="regName" data-i18n="auth_name">Имя</label>
+              <input type="text" id="regName" placeholder="Пётр" autocomplete="given-name" data-i18n-placeholder="auth_name_placeholder">
+              <div class="form-error" data-i18n="auth_name_error">Введите имя</div>
+            </div>
+            <div class="form-field">
+              <label for="regPatronymic" data-i18n="auth_patronymic">Отчество (необязательно)</label>
+              <input type="text" id="regPatronymic" placeholder="Иванович" autocomplete="additional-name" data-i18n-placeholder="auth_patronymic_placeholder">
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="regPhone" data-i18n="auth_phone_rb">Номер телефона (РБ)</label>
+              <input type="tel" id="regPhone" placeholder="+375 29 000-00-00" autocomplete="tel" data-i18n-placeholder="auth_phone_placeholder">
+              <div class="form-error" data-i18n="auth_phone_rb_error">Введите номер в формате +375 (25/29/33/44) 7 цифр</div>
+            </div>
+            <div class="form-field">
+              <label for="regEmail" data-i18n="auth_email">Электронная почта</label>
+              <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email" data-i18n-placeholder="auth_email_placeholder">
+              <div class="form-error" data-i18n="auth_email_error">Введите корректный email</div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="regBirthdate" data-i18n="auth_birthdate">Дата рождения</label>
+            <input type="date" id="regBirthdate" max="2009-12-31">
+            <div class="form-error" data-i18n="auth_birthdate_error">Вам должно быть не менее 16 лет</div>
+          </div>
+
+          <div class="form-field">
+            <label data-i18n="auth_nickname">Никнейм</label>
+            <div class="nickname-wrapper">
+              <input type="text" id="regNickname" placeholder="Придумайте никнейм" readonly data-i18n-placeholder="auth_nickname_placeholder">
+              <button type="button" id="generateNickBtn" class="btn-sm" data-i18n="auth_nickname_generate">Сгенерировать новый</button>
+            </div>
+            <div class="form-error" id="nickError" data-i18n="auth_nickname_error">Пожалуйста, введите никнейм вручную</div>
+          </div>
+
+          <div class="form-field">
+            <label data-i18n="auth_pass_method_label">Способ задания пароля</label>
+            <div class="auth-method-set" id="passMethodSet">
+              <button type="button" class="active" data-method="auto" data-i18n="auth_pass_method_auto">Сгенерировать автоматически</button>
+              <button type="button" data-method="manual" data-i18n="auth_pass_method_manual">Ввести самостоятельно</button>
+            </div>
+          </div>
+
+          <div class="form-field" id="autoPassField">
+            <label for="regAutoPassword" data-i18n="auth_auto_password_label">Сгенерированный пароль</label>
+            <div class="password-wrapper">
+              <input type="text" id="regAutoPassword" readonly>
+              <button type="button" id="toggleAutoPass" class="btn-sm" data-i18n="auth_auto_password_toggle">👁</button>
+              <button type="button" id="copyAutoPass" class="btn-sm" data-i18n="auth_auto_password_copy">📋</button>
+            </div>
+            <div class="form-hint" data-i18n="auth_auto_password_hint">Пароль сгенерирован автоматически. Сохраните его!</div>
+          </div>
+
+          <div class="form-field" id="manualPassField" style="display:none;">
+            <label for="regPassword" data-i18n="auth_password">Пароль</label>
+            <input type="password" id="regPassword" placeholder="Минимум 8 символов" autocomplete="new-password" data-i18n-placeholder="auth_password_manual_placeholder">
+            <div class="form-error" id="passError" data-i18n="auth_password_manual_error">Пароль должен содержать минимум 8 символов, заглавную и строчную буквы, цифру и спецсимвол</div>
+            <div class="form-field" style="margin-top:8px;">
+              <label for="regPassword2" data-i18n="auth_password2">Подтвердите пароль</label>
+              <input type="password" id="regPassword2" placeholder="Повторите пароль" autocomplete="new-password" data-i18n-placeholder="auth_password2_placeholder">
+              <div class="form-error" id="pass2Error" data-i18n="auth_password2_error">Пароли не совпадают</div>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top:16px;">
+            <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="regAgreement" style="width:20px; height:20px; margin-top:2px;">
+              <span>
+                <span data-i18n="auth_agreement_text">Я прочитал и принимаю условия</span>
+                <a href="#" target="_blank" data-i18n="auth_agreement_link" class="link-purple">Соглашения пользователя</a>
+              </span>
+            </label>
+            <div class="form-error" id="agreementError" data-i18n="auth_agreement_error">Необходимо принять соглашение</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:16px;" data-i18n="auth_submit_register">Зарегистрироваться</button>
+        </form>
+
+        <div class="auth-switch" id="switchHint">
+          <span data-i18n="auth_switch_login_text">Ещё нет аккаунта?</span> <a href="#" id="goRegister" data-i18n="auth_switch_login_link">Зарегистрироваться</a>
+        </div>
+        <div class="auth-switch" style="margin-top:6px;">
+          <a href="admin.html" data-i18n="auth_switch_admin">Войти как администратор →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script src="data.js"></script>
+<script src="app-common.js"></script>
+<script src="script.js"></script>
+<script>
+(function(){
+  // ===== ФУНКЦИЯ ПОЛУЧЕНИЯ СЕССИИ =====
+  function getSessionFromStorage() {
+    try {
+      var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return null;
+  }
+
+  // ===== БУРГЕР =====
+  var burgerBtn = document.getElementById('burgerBtn');
+  var mainNav = document.getElementById('mainNav');
+  if (burgerBtn && mainNav) {
+    burgerBtn.addEventListener('click', function() {
+      this.classList.toggle('open');
+      mainNav.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+    });
+  }
+
+  // ===== КНОПКА ВХОДА / ВЫХОДА =====
+  var authLink = document.getElementById('authLink');
+  var session = getSessionFromStorage();
+  var t = function(key) {
+    if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+      return KBUI.t(key);
+    }
+    return key;
+  };
+  if (authLink) {
+    if (session && session.name) {
+      authLink.textContent = t('logout') + ' (' + session.name + ')';
+      authLink.href = '#';
+      authLink.onclick = function(e) {
+        e.preventDefault();
+        localStorage.removeItem('kidsbe_session_v1');
+        localStorage.removeItem('kidsbe_session');
+        if (typeof KB !== 'undefined' && typeof KB.logout === 'function') KB.logout();
+        window.location.href = 'index.html';
+      };
+    } else {
+      authLink.textContent = t('login');
+      authLink.href = 'auth.html';
+    }
+  }
+
+  // ===== ВИДЖЕТ НАСТРОЕК =====
+  if (typeof KBUI !== 'undefined' && typeof KBUI.mountSettingsWidget === 'function') {
+    KBUI.mountSettingsWidget('#settingsWidget');
+  }
+
+  // ================================================================
+  // ОСНОВНАЯ ЛОГИКА АВТОРИЗАЦИИ
+  // ================================================================
+
+  const tabLogin = document.getElementById('tabLogin');
+  const tabRegister = document.getElementById('tabRegister');
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const switchHint = document.getElementById('switchHint');
+  const goRegister = document.getElementById('goRegister');
+  const msgBox = document.getElementById('msgBox');
+
+  let loginMethod = 'email';
+  function wireLoginMethod() {
+    const set = document.getElementById('loginMethodSet');
+    if (!set) return;
+    set.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        set.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loginMethod = btn.dataset.method;
+        var emailField = document.getElementById('loginEmailField');
+        var phoneField = document.getElementById('loginPhoneField');
+        if (emailField) emailField.style.display = loginMethod === 'email' ? 'block' : 'none';
+        if (phoneField) phoneField.style.display = loginMethod === 'phone' ? 'block' : 'none';
+      });
+    });
+  }
+  wireLoginMethod();
+
+  let passMethod = 'auto';
+  function wirePassMethod() {
+    const set = document.getElementById('passMethodSet');
+    if (!set) return;
+    set.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        set.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        passMethod = btn.dataset.method;
+        var autoField = document.getElementById('autoPassField');
+        var manualField = document.getElementById('manualPassField');
+        if (autoField) autoField.style.display = passMethod === 'auto' ? 'block' : 'none';
+        if (manualField) manualField.style.display = passMethod === 'manual' ? 'block' : 'none';
+        if (passMethod === 'auto') generateAutoPassword();
+      });
+    });
+  }
+  wirePassMethod();
+
+  // Генерация никнейма
+  let nicknameAttempts = 0;
+  const MAX_NICK_ATTEMPTS = 5;
+  const adjectives = ['Весёлый', 'Умный', 'Быстрый', 'Смелый', 'Добрый', 'Яркий', 'Талантливый', 'Креативный', 'Энергичный', 'Любознательный'];
+  const nouns = ['Ежик', 'Лисёнок', 'Зайка', 'Мишка', 'Дракон', 'Котик', 'Пингвин', 'Тигрёнок', 'Совёнок', 'Львёнок'];
+
+  function generateNickname() {
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    const num = Math.floor(100 + Math.random() * 900);
+    return adj + noun + num;
+  }
+
+  function applyGeneratedNickname() {
+    const nickField = document.getElementById('regNickname');
+    const genBtn = document.getElementById('generateNickBtn');
+    const nickError = document.getElementById('nickError');
+    if (!nickField) return;
+    const nick = generateNickname();
+    nickField.value = nick;
+    nickField.readOnly = true;
+    if (genBtn) genBtn.style.display = 'inline-block';
+    if (nickError) nickError.style.display = 'none';
+  }
+
+  function handleNickGenerate() {
+    const nickField = document.getElementById('regNickname');
+    const genBtn = document.getElementById('generateNickBtn');
+    const nickError = document.getElementById('nickError');
+    if (!nickField) return;
+    nicknameAttempts++;
+    if (nicknameAttempts >= MAX_NICK_ATTEMPTS) {
+      nickField.readOnly = false;
+      nickField.value = '';
+      nickField.placeholder = t('auth_nickname_manual_placeholder');
+      if (genBtn) genBtn.style.display = 'none';
+      if (nickError) {
+        nickError.style.display = 'block';
+        nickError.textContent = t('auth_nickname_manual_error');
+      }
+      return;
+    }
+    applyGeneratedNickname();
+  }
+
+  function generateAutoPassword() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz';
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const digits = '0123456789';
+    const special = '!@#$%^&*()_+-=';
+    let pwd = '';
+    pwd += upper[Math.floor(Math.random() * upper.length)];
+    pwd += chars[Math.floor(Math.random() * chars.length)];
+    pwd += digits[Math.floor(Math.random() * digits.length)];
+    pwd += special[Math.floor(Math.random() * special.length)];
+    const all = chars + upper + digits + special;
+    for (let i = 4; i < 12; i++) {
+      pwd += all[Math.floor(Math.random() * all.length)];
+    }
+    pwd = pwd.split('').sort(() => Math.random() - 0.5).join('');
+    const autoPassField = document.getElementById('regAutoPassword');
+    if (autoPassField) autoPassField.value = pwd;
+  }
+
+  const TOP100 = [
+    '123456','password','123456789','12345','12345678','qwerty','abc123','1234567','111111','123123',
+    '1234567890','password1','qwerty123','admin','letmein','welcome','monkey','dragon','master','hello',
+    'freedom','whatever','qazwsx','trustno1','princess','sunshine','1234','passw0rd','starwars','superman',
+    'iloveyou','batman','login','solo','123321','p@ssw0rd','baseball','hockey','shadow','lol123',
+    'michael','football','jordan','harley','ranger','fuckyou','hunter','jennifer','hannah','amanda',
+    'samantha','bubbles','cheese','computer','corvette','falcon','ferrari','fishing','ginger','golfing',
+    'hammer','happy','harry','heather','homer','hotdog','iloveyou2','jasmine','jason','johnson',
+    'joseph','junior','killer','kitty','lakers','legend','liverpool','love123','madison','merlin',
+    'mickey','morgan','mother','nelson','nicole','nintendo','nirvana','orange','parker','pepper',
+    'phoenix','pizza','platinum','pokemon','pookie','purple','qwertyuiop','rangers','redsox','rosebud',
+    'scooter','scooby','seattle','silver','snoopy','spider','steelers','thomas','tigger','titanic'
+  ];
+
+  function isTop100(pwd) {
+    return TOP100.includes(pwd.toLowerCase());
+  }
+
+  function validateBelarusPhone(phone) {
+    const cleaned = phone.replace(/[^\d+]/g, '');
+    return /^\+375(25|29|33|44)\d{7}$/.test(cleaned);
+  }
+
+  function isAgeValid(birthdate) {
+    if (!birthdate) return false;
+    const today = new Date();
+    const birth = new Date(birthdate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age >= 16;
+  }
+
+  function validatePassword(pwd) {
+    if (pwd.length < 8 || pwd.length > 20) return false;
+    if (!/[A-Z]/.test(pwd)) return false;
+    if (!/[a-z]/.test(pwd)) return false;
+    if (!/[0-9]/.test(pwd)) return false;
+    if (!/[!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>\/?]/.test(pwd)) return false;
+    if (isTop100(pwd)) return false;
+    return true;
+  }
+
+  function showMsg(text, type) {
+    if (msgBox) {
+      msgBox.textContent = text;
+      msgBox.className = 'auth-msg show ' + (type || '');
+    } else {
+      alert(text);
+    }
+  }
+  function hideMsg() { if (msgBox) msgBox.className = 'auth-msg'; }
+
+  function showLogin() {
+    if (tabLogin) tabLogin.classList.add('active');
+    if (tabRegister) tabRegister.classList.remove('active');
+    if (loginForm) loginForm.style.display = 'block';
+    if (registerForm) registerForm.style.display = 'none';
+    if (switchHint) {
+      switchHint.innerHTML = '<span data-i18n="auth_switch_login_text">Ещё нет аккаунта?</span> <a href="#" id="goRegister" data-i18n="auth_switch_login_link">Зарегистрироваться</a>';
+      // обновим перевод через KBUI.applyI18n
+      if (typeof KBUI !== 'undefined' && typeof KBUI.applyI18n === 'function') {
+        KBUI.applyI18n(switchHint);
+      }
+      var newGoRegister = document.getElementById('goRegister');
+      if (newGoRegister) {
+        newGoRegister.addEventListener('click', function(e){ e.preventDefault(); showRegister(); });
+      }
+    }
+    hideMsg();
+  }
+
+  function showRegister() {
+    if (tabLogin) tabLogin.classList.remove('active');
+    if (tabRegister) tabRegister.classList.add('active');
+    if (loginForm) loginForm.style.display = 'none';
+    if (registerForm) registerForm.style.display = 'block';
+    if (switchHint) {
+      switchHint.innerHTML = '<span data-i18n="auth_switch_register_text">Уже есть аккаунт?</span> <a href="#" id="goLogin" data-i18n="auth_switch_register_link">Войти</a>';
+      if (typeof KBUI !== 'undefined' && typeof KBUI.applyI18n === 'function') {
+        KBUI.applyI18n(switchHint);
+      }
+      var newGoLogin = document.getElementById('goLogin');
+      if (newGoLogin) {
+        newGoLogin.addEventListener('click', function(e){ e.preventDefault(); showLogin(); });
+      }
+    }
+    hideMsg();
+    applyGeneratedNickname();
+    generateAutoPassword();
+  }
+
+  if (tabLogin) tabLogin.addEventListener('click', showLogin);
+  if (tabRegister) tabRegister.addEventListener('click', showRegister);
+  if (goRegister) goRegister.addEventListener('click', function(e){ e.preventDefault(); showRegister(); });
+
+  var genNickBtn = document.getElementById('generateNickBtn');
+  if (genNickBtn) genNickBtn.addEventListener('click', handleNickGenerate);
+
+  let autoPassVisible = false;
+  var toggleAutoPass = document.getElementById('toggleAutoPass');
+  if (toggleAutoPass) {
+    toggleAutoPass.addEventListener('click', function() {
+      const inp = document.getElementById('regAutoPassword');
+      if (!inp) return;
+      autoPassVisible = !autoPassVisible;
+      inp.type = autoPassVisible ? 'text' : 'password';
+      this.textContent = autoPassVisible ? '🙈' : '👁';
+    });
+  }
+
+  var copyAutoPass = document.getElementById('copyAutoPass');
+  if (copyAutoPass) {
+    copyAutoPass.addEventListener('click', function() {
+      const inp = document.getElementById('regAutoPassword');
+      if (!inp || !inp.value) return;
+      navigator.clipboard.writeText(inp.value).then(() => {
+        alert(t('auth_password_copied'));
+      }).catch(() => {
+        inp.select();
+        document.execCommand('copy');
+        alert(t('auth_password_copied'));
+      });
+    });
+  }
+
+  // ========================
+  // ВХОД
+  // ========================
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const contact = loginMethod === 'email'
+        ? document.getElementById('loginEmail').value.trim()
+        : document.getElementById('loginPhone').value.trim();
+      const pass = document.getElementById('loginPassword').value;
+
+      const contactOk = loginMethod === 'email' ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) : validateBelarusPhone(contact);
+      const passOk = pass.length >= 6;
+      var emailField = document.getElementById('loginEmailField');
+      var phoneField = document.getElementById('loginPhoneField');
+      var passField = document.getElementById('loginPassField');
+      if (emailField) emailField.classList.toggle('invalid', loginMethod === 'email' && !contactOk);
+      if (phoneField) phoneField.classList.toggle('invalid', loginMethod === 'phone' && !contactOk);
+      if (passField) passField.classList.toggle('invalid', !passOk);
+      if (!contactOk || !passOk) return;
+
+      try {
+        let url;
+        if (loginMethod === 'email') {
+          url = 'http://localhost:3000/users?login=' + contact;
+        } else {
+          url = 'http://localhost:3000/users?phone=' + contact;
+        }
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Ошибка сервера');
+
+        const users = await response.json();
+        if (users.length === 0) {
+          showMsg(t('auth_user_not_found'), 'error');
+          return;
+        }
+        const user = users[0];
+        const expectedHash = 'h-' + pass;
+        if (user.passHash !== expectedHash) {
+          showMsg(t('auth_wrong_password'), 'error');
+          return;
+        }
+
+        const sessionData = { id: user.id, name: user.name };
+        // Сохраняем в оба ключа
+        localStorage.setItem('kidsbe_session', JSON.stringify(sessionData));
+        localStorage.setItem('kidsbe_session_v1', JSON.stringify(sessionData));
+        if (typeof KB !== 'undefined' && typeof KB.setSession === 'function') {
+          KB.setSession(sessionData);
+        }
+        showMsg(t('auth_login_success'), 'success');
+        setTimeout(function(){ window.location.href = 'courses.html'; }, 700);
+      } catch (err) {
+        showMsg(t('auth_login_error') + ': ' + err.message, 'error');
+      }
+    });
+  }
+
+  // ========================
+  // РЕГИСТРАЦИЯ
+  // ========================
+  if (registerForm) {
+    registerForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const surname = document.getElementById('regSurname').value.trim();
+      const name = document.getElementById('regName').value.trim();
+      const patronymic = document.getElementById('regPatronymic').value.trim();
+      const fullName = surname + ' ' + name + (patronymic ? ' ' + patronymic : '');
+      const phone = document.getElementById('regPhone').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const birthdate = document.getElementById('regBirthdate').value;
+      const nickname = document.getElementById('regNickname').value.trim();
+      const agreement = document.getElementById('regAgreement').checked;
+
+      let password = '';
+      if (passMethod === 'auto') {
+        password = document.getElementById('regAutoPassword').value;
+      } else {
+        password = document.getElementById('regPassword').value;
+      }
+
+      let valid = true;
+      const fields = [
+        { id: 'regSurname', cond: surname.length >= 2, msg: 'auth_surname_error' },
+        { id: 'regName', cond: name.length >= 2, msg: 'auth_name_error' },
+        { id: 'regPhone', cond: validateBelarusPhone(phone), msg: 'auth_phone_rb_error' },
+        { id: 'regEmail', cond: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), msg: 'auth_email_error' },
+        { id: 'regBirthdate', cond: isAgeValid(birthdate), msg: 'auth_birthdate_error' },
+      ];
+      fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (!el) return;
+        const error = el.parentElement.querySelector('.form-error');
+        if (!f.cond) {
+          el.classList.add('invalid');
+          if (error) {
+            error.style.display = 'block';
+            error.textContent = t(f.msg);
+          }
+          valid = false;
+        } else {
+          el.classList.remove('invalid');
+          if (error) error.style.display = 'none';
+        }
+      });
+
+      const nickField = document.getElementById('regNickname');
+      const nickError = document.getElementById('nickError');
+      if (nickField) {
+        if (!nickname || nickname.length < 2) {
+          nickField.classList.add('invalid');
+          if (nickError) {
+            nickError.style.display = 'block';
+            nickError.textContent = t('auth_nickname_error');
+          }
+          valid = false;
+        } else {
+          nickField.classList.remove('invalid');
+          if (nickError) nickError.style.display = 'none';
+        }
+      }
+
+      if (passMethod === 'manual') {
+        const pwd = document.getElementById('regPassword').value;
+        const pwd2 = document.getElementById('regPassword2').value;
+        const pwdOk = validatePassword(pwd);
+        const matchOk = pwd === pwd2 && pwd.length > 0;
+        var passField = document.getElementById('regPassword');
+        var pass2Field = document.getElementById('regPassword2');
+        var passError = document.getElementById('passError');
+        var pass2Error = document.getElementById('pass2Error');
+        if (passField) passField.classList.toggle('invalid', !pwdOk);
+        if (pass2Field) pass2Field.classList.toggle('invalid', !matchOk);
+        if (passError) {
+          passError.style.display = pwdOk ? 'none' : 'block';
+          passError.textContent = t('auth_password_manual_error');
+        }
+        if (pass2Error) {
+          pass2Error.style.display = matchOk ? 'none' : 'block';
+          pass2Error.textContent = t('auth_password2_error');
+        }
+        if (!pwdOk || !matchOk) valid = false;
+      } else {
+        var passField2 = document.getElementById('regPassword');
+        var pass2Field2 = document.getElementById('regPassword2');
+        var passError2 = document.getElementById('passError');
+        var pass2Error2 = document.getElementById('pass2Error');
+        if (passField2) passField2.classList.remove('invalid');
+        if (pass2Field2) pass2Field2.classList.remove('invalid');
+        if (passError2) passError2.style.display = 'none';
+        if (pass2Error2) pass2Error2.style.display = 'none';
+      }
+
+      const agreementError = document.getElementById('agreementError');
+      if (!agreement) {
+        if (agreementError) {
+          agreementError.style.display = 'block';
+          agreementError.textContent = t('auth_agreement_error');
+        }
+        valid = false;
+      } else {
+        if (agreementError) agreementError.style.display = 'none';
+      }
+
+      if (!valid) return;
+
+      const userData = {
+        name: fullName,
+        login: email,
+        loginType: 'email',
+        phone: phone,
+        birthdate: birthdate,
+        nickname: nickname,
+        passHash: 'h-' + password,
+        orders: []
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData)
+        });
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(errText || 'Ошибка сервера');
+        }
+        const newUser = await response.json();
+        showMsg(t('auth_register_success'), 'success');
+        const sessionData = { id: newUser.id, name: newUser.name };
+        localStorage.setItem('kidsbe_session', JSON.stringify(sessionData));
+        localStorage.setItem('kidsbe_session_v1', JSON.stringify(sessionData));
+        if (typeof KB !== 'undefined' && typeof KB.setSession === 'function') {
+          KB.setSession(sessionData);
+        }
+        setTimeout(function(){ window.location.href = 'courses.html'; }, 700);
+      } catch (err) {
+        console.error('Ошибка регистрации:', err);
+        showMsg(t('auth_register_error') + ': ' + err.message, 'error');
+      }
+    });
+  }
+
+  if (session) {
+    showMsg(t('auth_already_logged_in', { name: session.name }), 'success');
+  }
+
+  // Инициализация генерации никнейма и пароля (если форма регистрации видна)
+  if (registerForm && registerForm.style.display !== 'none') {
+    applyGeneratedNickname();
+    generateAutoPassword();
+  } else {
+    applyGeneratedNickname();
+    generateAutoPassword();
+  }
+
+  // Прелоадер
+  window.addEventListener('load', function(){
+    if (typeof KBUI !== 'undefined' && typeof KBUI.hidePreloader === 'function') {
+      KBUI.hidePreloader();
+    }
+  });
+
+  // Применить переводы ко всем элементам с data-i18n
+  if (typeof KBUI !== 'undefined' && typeof KBUI.applyI18n === 'function') {
+    KBUI.applyI18n();
+  }
+
+})();
+</script>
+</body>
+</html>
