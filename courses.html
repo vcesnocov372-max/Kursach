@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Курсы и конструктор — KidsBe</title>
+<script>
+(function(){
+  try{
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('kidsbe_theme') || 'light');
+    document.documentElement.setAttribute('data-palette', localStorage.getItem('kidsbe_palette') || 'purple');
+  }catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+  <div id="kbPreloader">
+    <div class="kb-spinner"></div>
+    <div class="kb-preloader-text" data-i18n="preloader_text">Загружаем KidsBe…</div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-wrapper"><img class="logo-img" src="img/logo.png" alt="KidsBe"></div>
+      <div class="tagline">продуктивный подход<br>к обучению детей</div>
+    </div>
+    <nav id="mainNav">
+      <a href="index.html" data-i18n="nav_home">Главная</a>
+      <a href="courses.html" data-i18n="nav_courses">Курсы</a>
+      <a href="calendar.html" data-i18n="nav_calendar">Календарь</a>
+      <a href="teachers.html" data-i18n="nav_teachers">Педагоги</a>
+      <a href="my-courses.html" id="myCoursesLink" style="display:none;" data-i18n="nav_my_courses">Мои курсы</a>
+    </nav>
+    <div class="socials">
+      <a href="#" aria-label="Instagram"><img src="/img/icons/1.svg" alt="Instagram"></a>
+      <a href="#" aria-label="YouTube"><img src="/img/icons/2.svg" alt="YouTube"></a>
+      <a href="#" aria-label="Facebook"><img src="/img/icons/3.svg" alt="Facebook"></a>
+      <a href="#" aria-label="VK"><img src="/img/icons/4.svg" alt="VK"></a>
+      <a href="#" aria-label="WhatsApp"><img src="/img/icons/5.svg" alt="WhatsApp"></a>
+      <a href="#" aria-label="Telegram"><img src="/img/icons/6.svg" alt="Telegram"></a>
+      <a href="#" aria-label="Viber"><img src="/img/icons/7.svg" alt="Viber"></a>
+    </div>
+    <a class="login-btn" href="auth.html" id="authLink">Войти</a>
+    <div id="settingsWidget"></div>
+    <button class="burger" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main class="app-main">
+    <div class="app-header">
+      <div class="app-eyebrow" data-i18n="courses_eyebrow">Курсы KidsBe</div>
+      <h1 data-i18n="courses_title">Выберите готовый курс или соберите свою программу</h1>
+      <p data-i18n="courses_sub">Каждый курс состоит из модулей — их можно комбинировать под возраст и цели ребёнка. Ниже — калькулятор, который сразу считает итоговую стоимость.</p>
+    </div>
+
+    <div class="catalog-controls">
+      <div class="search-filter">
+        <input type="text" id="searchInput" placeholder="Поиск по названию..." aria-label="Поиск курсов" data-i18n-placeholder="courses_search_placeholder">
+      </div>
+      <div class="sort-filter">
+        <label for="sortSelect" data-i18n="courses_sort_label">Сортировка:</label>
+        <select id="sortSelect" aria-label="Сортировка курсов">
+          <option value="default" data-i18n="courses_sort_default">По умолчанию</option>
+          <option value="price-asc" data-i18n="courses_sort_price_asc">Цена: от низкой к высокой</option>
+          <option value="price-desc" data-i18n="courses_sort_price_desc">Цена: от высокой к низкой</option>
+          <option value="name-asc" data-i18n="courses_sort_name_asc">А-Я</option>
+        </select>
+      </div>
+      <div class="category-filters">
+        <span class="glabel" data-i18n="courses_category_label">Категория:</span>
+        <div class="option-set">
+          <button type="button" class="cat-pill active" data-cat="all" data-i18n="courses_category_all">Все</button>
+          <button type="button" class="cat-pill" data-cat="speech" data-i18n="courses_category_speech">Речь</button>
+          <button type="button" class="cat-pill" data-cat="math" data-i18n="courses_category_math">Математика</button>
+          <button type="button" class="cat-pill" data-cat="art" data-i18n="courses_category_art">Творчество</button>
+          <button type="button" class="cat-pill" data-cat="english" data-i18n="courses_category_english">Английский</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-grid" id="courseGrid"></div>
+
+    <div class="builder" id="builder">
+      <div>
+        <h2 data-i18n="builder_title">Конструктор курса</h2>
+        <div class="builder-sub" data-i18n="builder_sub">Выберите курс, формат занятий и нужные модули — стоимость обновится автоматически.</div>
+
+        <div class="builder-group">
+          <span class="glabel" data-i18n="builder_format_label">Формат занятий</span>
+          <div class="option-set" id="formatOptions">
+            <button type="button" class="option-pill active" data-format="online" data-mult="1" data-i18n="builder_format_online">Онлайн</button>
+            <button type="button" class="option-pill" data-format="offline" data-mult="1.35" data-i18n="builder_format_offline">Очно в центре</button>
+          </div>
+        </div>
+
+        <div class="builder-group">
+          <span class="glabel" data-i18n="builder_lessons_label">Количество занятий в месяц</span>
+          <div class="range-field">
+            <input type="range" id="lessonsRange" min="4" max="16" step="1" value="8">
+            <div class="range-value" id="lessonsValue">8 занятий</div>
+          </div>
+        </div>
+
+        <div class="builder-group">
+          <span class="glabel" data-i18n="builder_modules_label">Модули курса</span>
+          <div id="modulesList"></div>
+        </div>
+      </div>
+
+      <div class="builder-summary" id="builderSummary"></div>
+    </div>
+  </main>
+
+<script src="data.js"></script>
+<script src="app-common.js"></script>
+<script src="script.js"></script>
+<script>
+(function(){
+  // =========================================================================
+  // 1. ОСНОВНАЯ ЛОГИКА КУРСОВ И КОНСТРУКТОРА (С ПЕРЕВОДАМИ)
+  // =========================================================================
+  let originalCourses = [];
+  let displayedCourses = [];
+  let selectedCourseId = null;
+  let selectedModules = {};
+  let format = { mult: 1, label: 'Онлайн' };
+
+  // Функция склонения "занятие" с i18n
+  function getWordLessons(n){
+    var t = function(key) {
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        return KBUI.t(key);
+      }
+      return key;
+    };
+    if (n % 10 === 1 && n % 100 !== 11) return t('lessons_one');
+    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return t('lessons_few');
+    return t('lessons_many');
+  }
+
+  function renderCatalog(container){
+    while (container.firstChild) container.removeChild(container.firstChild);
+    if (displayedCourses.length === 0) {
+      container.classList.add('is-empty');
+      container.style.gridTemplateColumns = '1fr';
+      const msg = document.createElement('div');
+      msg.className = 'empty-state';
+      msg.textContent = KBUI.t('courses_not_found');
+      container.appendChild(msg);
+      return;
+    } else {
+      container.classList.remove('is-empty');
+      container.style.gridTemplateColumns = '';
+    }
+    displayedCourses.forEach(function(c){
+      const color = KB.COURSE_COLORS[c.icon % KB.COURSE_COLORS.length];
+      const icon = KB.COURSE_ICONS[c.icon % KB.COURSE_ICONS.length];
+      const card = document.createElement('div');
+      card.className = 'course-card';
+      card.dataset.id = c.id;
+      card.innerHTML =
+        '<div class="course-badge" style="background:' + color + ';">' + icon + '</div>' +
+        '<h3>' + c.title + '</h3>' +
+        '<div class="age">' + KBUI.t('age') + ' ' + c.ageFrom + '–' + c.ageTo + ' ' + KBUI.t('years') + '</div>' +
+        '<p class="desc">' + c.desc + '</p>' +
+        '<div class="price-from">' + KBUI.t('from') + ' <b>' + c.basePrice + ' ' + KBUI.t('currency') + '</b> / ' + KBUI.t('lesson') + '</div>' +
+        '<button type="button" class="pick-btn" data-i18n="courses_pick_btn">Выбрать курс</button>';
+      // Привязываем перевод кнопки
+      const btn = card.querySelector('.pick-btn');
+      btn.textContent = KBUI.t('courses_pick_btn');
+      btn.addEventListener('click', function(){
+        selectedCourseId = c.id;
+        renderBuilder(document.getElementById('modulesList'), document.getElementById('builderSummary'));
+        document.getElementById('builder').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      container.appendChild(card);
+    });
+  }
+
+  function renderBuilder(modulesContainer, summaryContainer){
+    const course = displayedCourses.find(c => c.id === selectedCourseId) || displayedCourses[0];
+    if (!course) return;
+    document.querySelector('.builder h2').textContent = KBUI.t('builder_title_prefix') + ' ' + course.title;
+    modulesContainer.innerHTML = '';
+    course.modules.forEach(function(m){
+      if (!(m.id in selectedModules)) selectedModules[m.id] = true;
+      const row = document.createElement('div');
+      row.className = 'module-row' + (selectedModules[m.id] ? ' checked' : '');
+      row.innerHTML = '<div class="mleft"><span class="mcheck">' + (selectedModules[m.id] ? '✓' : '') + '</span>' + m.name + '</div><div class="mprice">+' + m.price + ' ' + KBUI.t('currency') + '/' + KBUI.t('lesson') + '</div>';
+      row.addEventListener('click', function(){
+        selectedModules[m.id] = !selectedModules[m.id];
+        row.classList.toggle('checked', selectedModules[m.id]);
+        renderSummary(summaryContainer, course);
+      });
+      modulesContainer.appendChild(row);
+    });
+    renderSummary(summaryContainer, course);
+  }
+
+  function renderSummary(container, course){
+    if (!course) {
+      container.innerHTML = '<div class="builder-empty">' + KBUI.t('builder_empty') + '</div>';
+      return;
+    }
+    const lessons = parseInt(document.getElementById('lessonsRange').value, 10);
+    document.getElementById('lessonsValue').textContent = lessons + ' ' + getWordLessons(lessons);
+    const activeModules = course.modules.filter(m=> selectedModules[m.id]);
+    const perLesson = (course.basePrice + activeModules.reduce((s,m)=> s + m.price, 0)) * format.mult;
+    const total = Math.round(perLesson * lessons);
+    let html = '<h3>' + KBUI.t('summary_title') + '</h3>';
+    html += '<div class="summary-line"><span>' + KBUI.t('summary_course') + '</span><span>' + course.title + '</span></div>';
+    html += '<div class="summary-line"><span>' + KBUI.t('summary_format') + '</span><span>' + format.label + '</span></div>';
+    html += '<div class="summary-line"><span>' + KBUI.t('summary_lessons') + '</span><span>' + lessons + '</span></div>';
+    html += '<div class="summary-line"><span>' + KBUI.t('summary_modules_selected') + '</span><span>' + activeModules.length + ' ' + KBUI.t('of') + ' ' + course.modules.length + '</span></div>';
+    html += '<div class="summary-line"><span>' + KBUI.t('summary_price_per_lesson') + '</span><span>' + Math.round(perLesson) + ' ' + KBUI.t('currency') + '</span></div>';
+    html += '<div class="summary-total"><span class="label">' + KBUI.t('summary_total') + '</span><span class="value">' + total + ' <small>' + KBUI.t('currency') + '</small></span></div>';
+    html += '<button type="button" class="btn btn-primary" id="orderBtn">' + KBUI.t('summary_order_btn') + '</button>';
+    container.innerHTML = html;
+    const btn = document.getElementById('orderBtn');
+    if(btn){
+      btn.onclick = async function(){
+        const ses = KB.getSession();
+        if (!ses) {
+          KB.setPendingCourse({
+            courseId: selectedCourseId,
+            format: format.label,
+            lessonsPerMonth: lessons,
+            modules: activeModules.map(function(m){ return { id: m.id, name: m.name, price: m.price }; }),
+            pricePerLesson: Math.round(perLesson),
+            total: total
+          });
+          window.location.href = 'auth.html';
+          return;
+        }
+        try {
+          await KB.enrollCourse({
+            courseId: selectedCourseId,
+            format: format.label,
+            lessonsPerMonth: lessons,
+            modules: activeModules.map(function(m){ return { id: m.id, name: m.name, price: m.price }; }),
+            pricePerLesson: Math.round(perLesson),
+            total: total
+          });
+          alert(KBUI.t('enroll_success'));
+        }
+        catch(e){ alert(e.message); }
+      };
+    }
+  }
+
+  function filterAndSort(container){
+    let filtered = [...originalCourses];
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    if(query) filtered = filtered.filter(c=> c.title.toLowerCase().includes(query) || c.desc.toLowerCase().includes(query));
+    const cat = document.querySelector('.cat-pill.active').dataset.cat;
+    if(cat !== 'all') filtered = filtered.filter(c=> c.category === cat);
+    switch(document.getElementById('sortSelect').value){
+      case 'price-asc': filtered.sort((a,b)=> a.basePrice - b.basePrice); break;
+      case 'price-desc': filtered.sort((a,b)=> b.basePrice - a.basePrice); break;
+      case 'name-asc': filtered.sort((a,b)=> a.title.localeCompare(b.title)); break;
+    }
+    displayedCourses = filtered;
+    renderCatalog(container);
+  }
+
+  async function initCourses(){
+    try {
+      console.log("Загрузка данных курсов...");
+      const grid = document.getElementById('courseGrid');
+      const searchInput = document.getElementById('searchInput');
+      const sortSelect = document.getElementById('sortSelect');
+      const categoryButtons = document.querySelectorAll('.cat-pill');
+      const modulesList = document.getElementById('modulesList');
+      const builderSummary = document.getElementById('builderSummary');
+      const lessonsRange = document.getElementById('lessonsRange');
+      const lessonsValue = document.getElementById('lessonsValue');
+      const formatOptions = document.getElementById('formatOptions');
+
+      if (!grid || !builderSummary) {
+        throw new Error("Критическая ошибка верстки: не найдены #courseGrid или #builderSummary");
+      }
+
+      originalCourses = await KB.loadCourses();
+      displayedCourses = [...originalCourses];
+      if (displayedCourses.length > 0) selectedCourseId = displayedCourses[0].id;
+
+      // Устанавливаем переводы для кнопок формата
+      formatOptions.querySelectorAll('.option-pill').forEach(function(btn) {
+        btn.textContent = KBUI.t(btn.dataset.i18n || '');
+      });
+
+      renderCatalog(grid);
+      renderBuilder(modulesList, builderSummary);
+
+      // Фильтры
+      searchInput.addEventListener('input', ()=>{ filterAndSort(grid); });
+      sortSelect.addEventListener('change', ()=>{ filterAndSort(grid); });
+      categoryButtons.forEach(function(b){
+        b.addEventListener('click', function(){
+          document.querySelector('.cat-pill.active').classList.remove('active');
+          b.classList.add('active');
+          filterAndSort(grid);
+        });
+      });
+
+      // Интерактив конструктора
+      lessonsRange.addEventListener('input', function(){
+        const n = parseInt(lessonsRange.value, 10);
+        lessonsValue.textContent = n + ' ' + getWordLessons(n);
+        const course = displayedCourses.find(c => c.id === selectedCourseId) || displayedCourses[0];
+        if (course) renderSummary(builderSummary, course);
+      });
+      formatOptions.querySelectorAll('.option-pill').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          formatOptions.querySelectorAll('.option-pill').forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
+          format = { mult: parseFloat(btn.dataset.mult), label: btn.textContent.trim() };
+          const course = displayedCourses.find(c => c.id === selectedCourseId) || displayedCourses[0];
+          if (course) renderSummary(builderSummary, course);
+        });
+      });
+      // Установка начального текста ползунка
+      const n0 = parseInt(lessonsRange.value, 10);
+      lessonsValue.textContent = n0 + ' ' + getWordLessons(n0);
+
+    } catch (err) {
+      console.error("Ошибка инициализации курсов:", err);
+      const fallbackGrid = document.getElementById('courseGrid');
+      if(fallbackGrid){
+        fallbackGrid.innerHTML = '<div class="empty-state">' + KBUI.t('courses_error') + '<br><small>' + err.message + '</small></div>';
+      }
+    }
+  }
+
+  // =========================================================================
+  // 2. ЛОГИКА АВТОРИЗАЦИИ (без изменений)
+  // =========================================================================
+  function getSessionFromStorage() {
+    try {
+      var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return null;
+  }
+
+  function updateAuthButton() {
+    var link = document.getElementById('authLink');
+    if (!link) return;
+    var session = getSessionFromStorage();
+    var t = function(key) {
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        return KBUI.t(key);
+      }
+      return key === 'login' ? 'Войти' : 'Выйти';
+    };
+    if (session && session.id) {
+      link.textContent = t('logout');
+      link.href = '#';
+      link.onclick = function(e) {
+        e.preventDefault();
+        localStorage.removeItem('kidsbe_session_v1');
+        localStorage.removeItem('kidsbe_session');
+        if (typeof KB !== 'undefined' && typeof KB.logout === 'function') KB.logout();
+        window.location.href = 'index.html';
+      };
+    } else {
+      link.textContent = t('login');
+      link.href = 'auth.html';
+      link.onclick = null;
+    }
+  }
+
+  function updateMyCoursesLink() {
+    var link = document.getElementById('myCoursesLink');
+    if (!link) return;
+    var session = getSessionFromStorage();
+    if (session && session.id) {
+      link.style.display = 'inline-block';
+      if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        link.textContent = KBUI.t('nav_my_courses');
+      }
+    } else {
+      link.style.display = 'none';
+    }
+  }
+
+  // =========================================================================
+  // 3. ОБЩАЯ ИНИЦИАЛИЗАЦИЯ
+  // =========================================================================
+  async function init(){
+    KBUI.mountSettingsWidget('#settingsWidget');
+
+    var burgerBtn = document.getElementById('burgerBtn');
+    var mainNav = document.getElementById('mainNav');
+    if (burgerBtn && mainNav) {
+      burgerBtn.addEventListener('click', function() {
+        this.classList.toggle('open');
+        mainNav.classList.toggle('open');
+        this.setAttribute('aria-expanded', this.classList.contains('open'));
+      });
+    }
+
+    updateAuthButton();
+    updateMyCoursesLink();
+
+    document.addEventListener('kidsbe:langchange', function() {
+      updateAuthButton();
+      var link = document.getElementById('myCoursesLink');
+      if (link && link.style.display !== 'none' && typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+        link.textContent = KBUI.t('nav_my_courses');
+      }
+      // Обновить тексты в уже отрендеренных карточках (перерисовать всё)
+      const grid = document.getElementById('courseGrid');
+      if (grid) renderCatalog(grid);
+      const modulesList = document.getElementById('modulesList');
+      const builderSummary = document.getElementById('builderSummary');
+      if (modulesList && builderSummary) renderBuilder(modulesList, builderSummary);
+      // Обновить тексты кнопок формата
+      var formatOptions = document.getElementById('formatOptions');
+      if (formatOptions) {
+        formatOptions.querySelectorAll('.option-pill').forEach(function(btn) {
+          btn.textContent = KBUI.t(btn.dataset.i18n || '');
+        });
+      }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        updateAuthButton();
+        updateMyCoursesLink();
+      }
+    });
+
+    setTimeout(function() {
+      updateAuthButton();
+      updateMyCoursesLink();
+    }, 500);
+
+    await initCourses();
+    KBUI.hidePreloader();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>
