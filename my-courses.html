@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои курсы — KidsBe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="common.css">
+    
+    <script src="data.js"></script>
+    <script src="app-common.js"></script>
+</head>
+<body>
+
+<div id="kbPreloader">
+    <div class="kb-spinner"></div>
+    <div class="kb-preloader-text" data-i18n="preloader_text">Загружаем KidsBe…</div>
+</div>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="logo-wrapper"><img class="logo-img" src="img/logo.png" alt="KidsBe"></div>
+        <div class="tagline">продуктивный подход<br>к обучению детей</div>
+    </div>
+    <nav id="mainNav">
+        <a href="index.html" data-i18n="nav_home">Главная</a>
+        <a href="courses.html" data-i18n="nav_courses">Курсы</a>
+        <a href="calendar.html" data-i18n="nav_calendar">Календарь</a>
+        <a href="teachers.html" data-i18n="nav_teachers">Педагоги</a>
+        <a href="my-courses.html" id="myCoursesLink" class="active" style="display:none;" data-i18n="nav_my_courses">Мои курсы</a>
+    </nav>
+    <div class="socials">
+      <a href="#" aria-label="Instagram"><img src="/img/icons/1.svg" alt="Instagram"></a>
+      <a href="#" aria-label="YouTube"><img src="/img/icons/2.svg" alt="YouTube"></a>
+      <a href="#" aria-label="Facebook"><img src="/img/icons/3.svg" alt="Facebook"></a>
+      <a href="#" aria-label="VK"><img src="/img/icons/4.svg" alt="VK"></a>
+      <a href="#" aria-label="WhatsApp"><img src="/img/icons/5.svg" alt="WhatsApp"></a>
+      <a href="#" aria-label="Telegram"><img src="/img/icons/6.svg" alt="Telegram"></a>
+      <a href="#" aria-label="Viber"><img src="/img/icons/7.svg" alt="Viber"></a>
+    </div>
+    <a class="login-btn" href="auth.html" id="authLink">Войти</a>
+    <div id="settingsWidget"></div>
+    <button class="burger" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false" aria-controls="mainNav">
+        <span></span><span></span><span></span>
+    </button>
+</header>
+
+<main class="app-main" style="padding: 44px 24px;">
+    <div class="page-header">
+        <h1 data-i18n="my_courses_title">Мои курсы</h1>
+        <p data-i18n="my_courses_sub">История ваших записей и активные программы</p>
+    </div>
+
+    <div class="my-courses-grid" id="myGrid"></div>
+</main>
+
+<script>
+(function(){
+    // ===== ВИДЖЕТ НАСТРОЕК =====
+    KBUI.mountSettingsWidget('#settingsWidget');
+
+    // ===== БУРГЕР =====
+    var burgerBtn = document.getElementById('burgerBtn');
+    var mainNav = document.getElementById('mainNav');
+    if (burgerBtn && mainNav) {
+        burgerBtn.addEventListener('click', function() {
+            this.classList.toggle('open');
+            mainNav.classList.toggle('open');
+            this.setAttribute('aria-expanded', this.classList.contains('open'));
+        });
+    }
+
+    // ===== ПОКАЗ/СКРЫТИЕ ССЫЛКИ "МОИ КУРСЫ" =====
+    function updateMyCoursesLink() {
+        var link = document.getElementById('myCoursesLink');
+        if (!link) return;
+        var session = null;
+        try {
+            var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+            if (raw) session = JSON.parse(raw);
+        } catch(e) {}
+        if (session && session.id) {
+            link.style.display = 'inline-block';
+        } else {
+            link.style.display = 'none';
+        }
+    }
+
+    // ===== ОБНОВЛЕНИЕ КНОПКИ ВХОДА/ВЫХОДА =====
+    function updateAuthButton() {
+        var link = document.getElementById('authLink');
+        if (!link) return;
+
+        var session = null;
+        try {
+            var raw = localStorage.getItem('kidsbe_session_v1') || localStorage.getItem('kidsbe_session');
+            if (raw) session = JSON.parse(raw);
+        } catch(e) {}
+
+        var t = function(key) {
+            if (typeof KBUI !== 'undefined' && typeof KBUI.t === 'function') {
+                return KBUI.t(key);
+            }
+            return key === 'login' ? 'Войти' : 'Выйти';
+        };
+
+        if (session && session.id) {
+            link.textContent = t('logout');
+            link.href = '#';
+            link.onclick = function(e) {
+                e.preventDefault();
+                localStorage.removeItem('kidsbe_session_v1');
+                localStorage.removeItem('kidsbe_session');
+                if (typeof KB !== 'undefined' && typeof KB.logout === 'function') KB.logout();
+                window.location.href = 'index.html';
+            };
+        } else {
+            link.textContent = t('login');
+            link.href = 'auth.html';
+            link.onclick = null;
+        }
+    }
+
+    // ===== ОСНОВНАЯ ЛОГИКА СТРАНИЦЫ =====
+    const grid = document.getElementById('myGrid');
+    let currentOrders = [];
+    let currentCourses = [];
+    const API_BASE = 'http://localhost:3000';
+
+    // ===== УДАЛЕНИЕ через PUT =====
+    async function deleteOrder(orderId) {
+        console.log('deleteOrder вызван с id:', orderId);
+        if (!confirm(KBUI.t('confirm_unsubscribe'))) return;
+
+        try {
+            const session = KB.getSession();
+            if (!session) throw new Error('Сессия не найдена');
+
+            const userRes = await fetch(API_BASE + '/users/' + session.id, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            if (!userRes.ok) {
+                throw new Error('Не удалось загрузить профиль (статус ' + userRes.status + ')');
+            }
+            const user = await userRes.json();
+
+            const updatedOrders = user.orders.filter(o => o.orderId !== orderId);
+            user.orders = updatedOrders;
+
+            const putRes = await fetch(API_BASE + '/users/' + session.id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user),
+                credentials: 'include'
+            });
+            if (!putRes.ok) {
+                const errorText = await putRes.text();
+                throw new Error(errorText || 'Ошибка сервера');
+            }
+
+            currentOrders = updatedOrders;
+            renderMyCourses(currentOrders, currentCourses);
+            alert(KBUI.t('unsubscribe_success'));
+
+        } catch (err) {
+            console.error('Ошибка удаления:', err);
+            alert(KBUI.t('unsubscribe_error') + '\n' + err.message);
+        }
+    }
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    async function init() {
+        try {
+            console.log("Проверка авторизации...");
+            const session = KB.getSession();
+            if (!session) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            const userProfile = await KB.apiGet('/users/' + session.id);
+            if (!userProfile) {
+                throw new Error('Профиль не найден.');
+            }
+
+            const allCourses = await KB.loadCourses();
+
+            currentOrders = userProfile.orders || [];
+            currentCourses = allCourses;
+
+            renderMyCourses(currentOrders, currentCourses);
+
+            document.addEventListener('kidsbe:langchange', function() {
+                renderMyCourses(currentOrders, currentCourses);
+            });
+
+        } catch (err) {
+            console.error("Ошибка:", err);
+            grid.innerHTML = '<div class="empty-history">Ошибка сети или данных.<br><small>' + err.message + '</small></div>';
+        } finally {
+            KBUI.hidePreloader();
+        }
+    }
+
+    // ===== ОТРИСОВКА КАРТОЧЕК =====
+    function renderMyCourses(ordersArray, coursesCatalog) {
+        if (!ordersArray || ordersArray.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-history">
+                    ${KBUI.t('empty_my_courses')}<br>
+                    <a href="courses.html" style="color:var(--purple); font-weight:bold;">${KBUI.t('go_to_courses')}</a>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = '';
+        
+        ordersArray.forEach(order => {
+            const courseData = coursesCatalog.find(c => c.id === order.courseId);
+            if (!courseData) {
+                console.warn('Курс не найден для заказа:', order);
+                return;
+            }
+
+            const orderId = order.orderId;
+            if (!orderId) {
+                console.warn('Заказ без orderId:', order);
+                return;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            
+            const color = KB.COURSE_COLORS[courseData.icon % KB.COURSE_COLORS.length];
+            const icon = KB.COURSE_ICONS[courseData.icon % KB.COURSE_ICONS.length];
+
+            card.innerHTML = `
+                <div class="course-badge" style="background:${color};">${icon}</div>
+                <h3>${courseData.title}</h3>
+                <div class="age">${KBUI.t('age')} ${courseData.ageFrom}–${courseData.ageTo} ${KBUI.t('years')}</div>
+                <p class="desc">${courseData.desc}</p>
+                <div class="price-from">${KBUI.t('price_label')}: <b>${courseData.basePrice} ${KBUI.t('currency')}</b> / ${KBUI.t('lesson')}</div>
+                <button class="delete-course-btn" data-order-id="${orderId}">${KBUI.t('unsubscribe')}</button>
+            `;
+
+            const btn = card.querySelector('.delete-course-btn');
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = this.dataset.orderId;
+                console.log('Клик по кнопке, id:', id);
+                if (id) deleteOrder(id);
+            });
+
+            grid.appendChild(card);
+        });
+    }
+
+    // ===== ЗАПУСК =====
+    // Обновляем ссылку и кнопку сразу
+    updateMyCoursesLink();
+    updateAuthButton();
+
+    // Подписки на события
+    document.addEventListener('kidsbe:langchange', function() {
+        updateAuthButton();
+        // Также обновить ссылку (на случай смены языка — но она от сессии, не от языка)
+    });
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            updateAuthButton();
+            updateMyCoursesLink();
+        }
+    });
+
+    // Дополнительная страховка
+    setTimeout(function() {
+        updateAuthButton();
+        updateMyCoursesLink();
+    }, 500);
+
+    // Запускаем основную логику
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+
+</body>
+</html>
